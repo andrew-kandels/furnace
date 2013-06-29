@@ -41,8 +41,13 @@ class Job implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $sm)
     {
+        $config = $sm->get('config');
+        $config = $config['furnace'];
+
         return new JobService(
-            $sm->get('FurnaceJobMapper')
+            $sm->get('FurnaceJobMapper'),
+            $config,
+            $sm
         );
     }
 }

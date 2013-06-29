@@ -72,6 +72,10 @@ class Job extends AbstractDefinition
                     'max' => 60,
                 )),
             ),
+            'attributes' => array(
+                'required' => true,
+                'class' => 'input-large',
+            ),
             'options' => array(
                 'label' => 'Name',
                 'help-block' => 'Unique name used to identify the job.',
@@ -79,27 +83,24 @@ class Job extends AbstractDefinition
         ));
 
         $this->setProperty('description', 'string', array(
-            'required' => true,
-            'primary' => true,
             'filters' => array(
                 array('name' => 'StringTrim'),
+                array('name' => 'StripTags'),
             ),
             'validators' => array(
-                array('name' => 'Regex', 'options' => array(
-                    'pattern' => '/^[a-zA-Z][a-zA-Z0-9-_]*$/',
-                    'messages' => array(
-                        'regexNotMatch' => 'Job names should start with a letter and contain '
-                            . 'only letters, numbers, underscores and dashes.',
-                    ),
-                )),
                 array('name' => 'StringLength', array(
                     'min' => 0,
-                    'max' => 60,
+                    'max' => 140,
                 )),
             ),
+            'type' => 'textarea',
+            'attributes' => array(
+                'rows' => 2,
+                'class' => 'input-xlarge',
+            ),
             'options' => array(
-                'label' => 'Name',
-                'help-block' => 'Unique name used to identify the job.',
+                'label' => 'Description',
+                'help-block' => 'Longer description describing what the job does.',
             ),
         ));
 
@@ -124,6 +125,9 @@ class Job extends AbstractDefinition
                     . 'are started first.',
                 'value_options' => $options,
             ),
+            'attributes' => array(
+                'class' => 'input-small',
+            ),
         ));
 
         $this->setProperty('schedule', 'string', array(
@@ -139,13 +143,28 @@ class Job extends AbstractDefinition
                     'monthly' => 'Monthly',
                 ),
             ),
+            'attributes' => array(
+                'class' => 'input-medium',
+            ),
         ));
 
         $this->setProperty('dependencies', 'list', array(
             'type' => 'string',
         ));
 
-        $this->setProperty('startAt', 'dateTime');
+        $this->setProperty('startAt', 'dateTime', array(
+            'type' => 'date',
+            'required' => true,
+            'attributes' => array(
+                'required' => true,
+                'class' => 'input-medium',
+            ),
+            'options' => array(
+                'label' => 'Starts',
+                'class' => 'input-large',
+                'help-block' => 'Uses the time and/or date depending on the type of schedule.',
+            ),
+        ));
 
         $this->setProperty('queuedAt', 'dateTime');
         $this->setProperty('startedAt', 'dateTime');
@@ -174,11 +193,11 @@ class Job extends AbstractDefinition
      */
     public function queue()
     {
-        if (!$this->getQueuedAt()) {
+        if ($this->getQueuedAt()) {
             throw new \RuntimeException('Cannot queue job as it has already been queued.');
         }
 
-        if (!$this->getStartedAt()) {
+        if ($this->getStartedAt()) {
             throw new \RuntimeException('Cannot queue job as it has already been started.');
         }
 
@@ -200,7 +219,7 @@ class Job extends AbstractDefinition
      */
     public function start($incPidLookup = true)
     {
-        if (!$this->getStartedAt()) {
+        if ($this->getStartedAt()) {
             throw new \RuntimeException('Cannot start job as it has already been started.');
         }
 
@@ -222,7 +241,7 @@ class Job extends AbstractDefinition
                 );
             }
 
-            $this->setPid($pid);
+            $this->setPidOf($pid);
             $this->setPidCmd(file_get_contents($status));
 
             $message .= sprintf(' (pid: %d)', $pid);
@@ -301,7 +320,7 @@ class Job extends AbstractDefinition
      */
     public function complete($incStats = true)
     {
-        if (!$this->getCompletedAt()) {
+        if ($this->getCompletedAt()) {
             throw new \RuntimeException('Cannot complete job as the completedAt property is empty.');
         }
 
@@ -309,23 +328,24 @@ class Job extends AbstractDefinition
             throw new \RuntimeException('Cannot complete job as the startedAt property is empty.');
         }
 
+        $this->setCompletedAt(time());
+
         $history = new \Furnace\Entity\History(array(
             'startedAt' => $this->getStartedAt(),
             'completedAt' => $this->getCompletedAt(),
         ));
 
         if ($incStats && $this->getPidOf()) {
-            $history->setPidStats($this->getStats());
+            $history->setStats($hash = $this->getStats());
         }
 
         $this->addHistory($history);
 
-        $this->clear('startedAt');
-        $this->setCompletedAt(time());
-
         $this->addMessages(sprintf('Job completed at %s',
             date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp()))
         );
+
+        $this->clear('startedAt');
 
         return $this;
     }
@@ -355,7 +375,7 @@ class Job extends AbstractDefinition
         ));
 
         if ($incStats && $this->getPidOf()) {
-            $history->setPidStats($this->getStats());
+            $history->setStats($this->getStats());
         }
 
         $this->addHistory($history);
@@ -383,14 +403,14 @@ class Job extends AbstractDefinition
         $status = sprintf('/proc/%d/status', $this->getPidOf());
 
         if (!file_exists($status)) {
-            return array();
+            return array('poop' => 'bandit');
         }
 
         $lines = file($status, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $hash  = array();
 
         foreach ($lines as $line) {
-            if (preg_match('/^([^:]+): (.*)$/', $line, $matches)) {
+            if (preg_match('/^([^\:]+)\:(.*)$/', trim($line), $matches)) {
                 $hash[$matches[1]] = trim($matches[2]);
             }
         }
@@ -415,7 +435,7 @@ class Job extends AbstractDefinition
      * @param   DateTime                Date/Time to check
      * @return  boolean
      */
-    public function isCompleted($when = time())
+    public function isCompleted($when = null)
     {
         $when = $this->getTimestampFromArgument($when);
 
@@ -521,8 +541,12 @@ class Job extends AbstractDefinition
      * @param   DateTime|integer|string
      * @return  integer
      */
-    public function getTimestampFromArgument($when)
+    public function getTimestampFromArgument($when = null)
     {
+        if (!$when) {
+            return time();
+        }
+
         if ($when instanceof \DateTime) {
             return $when->getTimestamp();
         }
@@ -557,7 +581,7 @@ class Job extends AbstractDefinition
      *                                                  on the value from schedule)
      * @return  $this
      */
-    public function schedule($schedule, $startAt)
+    public function schedule($schedule, $startAt = null)
     {
         $timestamp = $this->getTimestampFromArgument($startAt);
 

@@ -20,6 +20,7 @@
 namespace Furnace;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\Mvc\MvcEvent;
 
 /**
  * ZF2 Module Bootstrap
@@ -31,6 +32,11 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
  */
 class Module implements AutoloaderProviderInterface
 {
+    /**
+     * @var Zend\ServiceManager
+     */
+    protected $serviceManager;
+
     /**
      * Get Configuration
      *
@@ -58,5 +64,46 @@ class Module implements AutoloaderProviderInterface
                 ),
             ),
         );
+    }
+
+    /**
+     * ZF2 Bootstrap Handling
+     *
+     * @param   Zend\Mvc\MvcEvent
+     * @return  void
+     */
+    public function onBootstrap(MvcEvent $e)
+    {
+        $app = $e->getParam('application');
+        $this->serviceManager = $app->getServiceManager();
+        $app->getEventManager()->attach('dispatch', array($this, 'onDispatch'), -100);
+    }
+
+    /**
+     * Called when dispatching a controller this module handles.
+     *
+     * @param   Zend\Mvc\MvcEvent
+     * @return  void
+     */
+    public function onDispatch(MvcEvent $e)
+    {
+        $matches    = $e->getRouteMatch();
+        $controller = $matches->getParam('controller');
+
+        if (strpos($controller, __NAMESPACE__) === 0) {
+            $config = $this->serviceManager->get('config');
+
+            $viewModel = $this->serviceManager
+                ->get('ViewManager')
+                ->getViewModel();
+
+            $viewModel->bootstrapCss = isset($config['furnace']['assets']['css'])
+                ? $config['furnace']['assets']['css']
+                : false;
+
+            $viewModel->bootstrapJs = isset($config['furnace']['assets']['js'])
+                ? $config['furnace']['assets']['js']
+                : false;
+        }
     }
 }

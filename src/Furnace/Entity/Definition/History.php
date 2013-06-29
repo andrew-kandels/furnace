@@ -45,5 +45,6 @@ class History extends AbstractDefinition
         $this->setProperty('completedAt', 'dateTime');
         $this->setProperty('failedAt', 'dateTime');
         $this->setProperty('message', 'string');
+        $this->setProperty('stats', 'hash');
     }
 }

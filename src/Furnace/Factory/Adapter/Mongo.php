@@ -53,12 +53,13 @@ class Mongo implements FactoryInterface
 
         if (empty($config['name'])) {
             throw new InvalidArgumentException('Mongo configuration requires a name parameter.');
+        }
 
         if (empty($config['host'])) {
             $config['host'] = 'localhost';
         }
 
-        $dsn = sprintf('mongodb://%s%s%s/%s',
+        $dsn = sprintf('mongodb://%s%s/%s',
             isset($config['username']) && isset($config['password'])
                 ? sprintf('%s:%s@', $config['username'], $config['password'])
                 : '',
@@ -70,7 +71,7 @@ class Mongo implements FactoryInterface
             'connect' => false, // open connection only when necessary
         );
 
-        if ($config['w']) {
+        if (isset($config['w'])) {
             $options['w'] = $config['w'];
         }
 

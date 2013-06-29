@@ -1,0 +1,16 @@
+<table class="table" id="job-usage-stats">
+<thead>
+    <tr>
+        <th class="column-name"><?php echo $this->translate('Name'); ?></th>
+        <th class="column-value"><?php echo $this->translate('Value'); ?></th>
+    </tr>
+</thead>
+<tbody>
+<?php foreach ($history->getStats() as $name => $value): ?>
+    <tr>
+        <td class="column-name"><?php echo $this->escapeHtml($name); ?></td>
+        <td class="column-value"><?php echo $this->escapeHtml($value); ?></td>
+    </tr>
+<?php endforeach; ?>
+</tbody>
+</table>

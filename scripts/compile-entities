@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+chdir(dirname(__DIR__) . '/../../..');
+
+define('IS_PRODUCTION', false);
+define('IS_DEVELOPMENT', true);
+
+// Setup autoloading
+require_once(getcwd() . '/vendor/autoload.php');
+
+ini_set('log_errors', '1');
+ini_set('error_log', __DIR__ . '/../logs/phperrors.log');
+ini_set('error_reporting', E_ALL);
+ini_set('date.timezone', 'America/Chicago');
+
+Zend\Mvc\Application::init(require 'config/development-application.config.php')->bootstrap();
+
+$compiler = new Contain\Entity\Compiler\Compiler();
+try {
+    $compiler->compile('Furnace\Entity\Definition\History');
+    $compiler->compile('Furnace\Entity\Definition\Job');
+} catch (Exception $e) {
+    fprintf(STDERR, "Exception: %s\n--\n%s\n\n", $e->getMessage(), $e->getTraceAsString());
+    exit(1);
+}
+
+exit(0);

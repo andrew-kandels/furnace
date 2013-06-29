@@ -1,0 +1,25 @@
+#jobs-container {
+    margin: 0 auto 1em auto;
+    width: 90%;
+    box-shadow: 0 5px 9px 4px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 9px 4px rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: 0 5px 9px 4px rgba(0, 0, 0, 0.2);
+    max-width: 1220px;
+}
+
+#jobs-container > .jobs-content {
+    padding: 1em 1.5em 2.5em 1.5em;
+}
+
+.jobs-content h1 {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 0.5em;
+}
+
+#jobs-list .column-action { width: 30px; text-align: right; }
+#jobs-list .column-priority { width: 60px; text-align: center; }
+#jobs-list .column-status { width: 300px; }
+
+.control-group .control-text {
+    padding-top: 5px;
+}

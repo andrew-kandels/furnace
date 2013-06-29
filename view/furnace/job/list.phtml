@@ -1,0 +1,66 @@
+<a href="<?php echo $this->url('furnace-crud', array(
+    'action' => 'create',
+)); ?>" class="btn pull-right">
+    <i class="icon icon-plus"></i>
+    <?php echo $this->translate('Create Job'); ?>
+</a>
+
+<h2><?php echo $this->translate('Jobs'); ?></h2>
+
+<ul class="breadcrumb">
+    <li><?php echo $this->translate('Furnace'); ?> <span class="divider">/</span></li>
+    <li><a href="<?php echo $this->url('furnace-crud'); ?>"><?php
+        echo $this->translate('Jobs List'); ?></a></li>
+</ul>
+
+<?php if ($jobs->count()): ?>
+
+<table class="table table-condensed" id="jobs-list">
+<thead>
+    <tr>
+        <th class="column-action">&nbsp;</th>
+        <th class="column-priority"><?php echo $this->translate('Priority'); ?></th>
+        <th class="column-name"><?php echo $this->translate('Name'); ?></th>
+        <th class="column-status"><?php echo $this->translate('Status'); ?></th>
+    </tr>
+</thead>
+<tbody>
+<?php foreach ($jobs as $job): ?>
+    <tr>
+        <td class="column-action">
+            <input type="checkbox" name="" value="1"/>
+        </td>
+        <td class="column-priority">
+            <?php echo number_format($job->getPriority(), 0); ?>
+        </td>
+        <td class="column-name">
+            <a href="<?php echo $this->url('furnace-crud', array(
+                'action' => 'view',
+                'param'  => $job->getName(),
+            )); ?>">
+                <?php echo $this->escapeHtml($job->getName()); ?>
+            </a>
+            <?php if ($description = $job->getDescription()): ?>
+                &hellip; <span class="muted"><?php echo $this->escapeHtml($description); ?></span>
+            <?php endif; ?>
+        </td>
+        <td>
+            <?php echo $this->furnaceStatus($job); ?>
+        </td>
+    </tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+
+<?php else: ?>
+
+<div class="alert alert-info">
+    <?php echo $this->translate('There are no defined jobs.'); ?>
+    <?php printf($this->translate('You can <a href="%s">create one</a>.'),
+        $this->url('furnace-crud', array(
+            'action' => 'create',
+        ))
+    ); ?>
+</div>
+
+<?php endif; ?>

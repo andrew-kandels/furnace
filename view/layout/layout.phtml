@@ -1,0 +1,63 @@
+<?php
+$this->docType('HTML5');
+echo $this->doctype();
+
+$this->headMeta()
+    ->appendName('viewport', 'width=device-width');
+
+if ($this->bootstrapCss) {
+    $this->headLink()->appendStylesheet($this->bootstrapCss);
+}
+
+$this->headLink()->appendStylesheet($this->url('furnace-css'));
+
+$this->inlineScript()
+    ->appendFile('http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js')
+    ->appendFile($this->url('furnace-js', array(
+        'file' => 'job.js',
+    )));
+
+if ($this->bootstrapJs) {
+    $this->inlineScript()->appendFile($this->bootstrapJs);
+}
+
+?>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie6" lang="en"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8 ie7" lang="en"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9 ie8" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<?php echo $this->renderContent()->head(); ?>
+<?php echo $this->headMeta(); ?>
+<?php echo $this->headLink(); ?>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+<?php
+echo $this->headStyle();
+echo $this->headScript();
+?>
+</head>
+<body>
+<div id="jobs-container">
+    <div class="jobs-content">
+        <h1><?php echo $this->translate('Furnace Control Panel'); ?></h1>
+        <?php
+        $this->flashMessenger()
+            ->setMessageOpenFormat('<div%s>')
+            ->setMessageCloseString('</div>')
+            ->setMessageSeparatorString('<br />');
+
+        foreach (array('success', 'error', 'info') as $namespace) {
+            echo $this->flashMessenger()->render(
+                $namespace,
+                array('alert', 'alert-' . $namespace)
+            );
+        }
+        echo $this->content;
+        ?>
+    </div>
+</div>
+<?php echo $this->inlineScript(); ?>
+</body>
+</html>

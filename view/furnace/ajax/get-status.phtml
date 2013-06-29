@@ -1,0 +1,7 @@
+<ul>
+<?php foreach ($job->getMessages() as $message): ?>
+    <li>
+        <?php echo $this->escapeHtml($message); ?>
+    </li>
+<?php endforeach; ?>
+</ul>

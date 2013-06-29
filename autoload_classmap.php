@@ -9,5 +9,5 @@ return array(
     'Furnace\Factory\Service\Job'       => __DIR__ . '/src/Furnace/Factory/Service/Job.php',
     'Furnace\Factory\Mapper\Job'        => __DIR__ . '/src/Furnace/Factory/Mapper/Job.php',
     'Furnace\Factory\Adapter\Mongo'     => __DIR__ . '/src/Furnace/Factory/Adapter/Mongo.php',
-    'Furnace\Module'                    => __DIR__ . '/src/Furnace/Module.php',
+    'Furnace\Module'                    => __DIR__ . '/Module.php',
 );

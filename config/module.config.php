@@ -1,13 +1,15 @@
 <?php
 return array(
     'furnace' => array(
+        /* Example: MongoDB:
         'database' => array(
             'adapter' => 'Mongo',
             'parameters' => array(
                 'host' => 'localhost',
-                'name' => 'CB',
+                'name' => 'furnace',
             ),
         ),
+        */
 
         'log' => array(
             'maxBytes' => 1024 * 1024, // 1 KB

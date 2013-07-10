@@ -1,0 +1,8 @@
+<div id="job-refresh" data-src="<?php echo $this->url('furnace-ajax', array(
+    'action' => 'set-refresh',
+)); ?>">
+    <label class="checkbox">
+        <input type="checkbox" name="refresh"<?php if ($refresh): ?> checked<?php endif; ?>/> 
+        <?php echo $this->translate('Refresh page every 30 seconds'); ?>
+    </label>
+</div>

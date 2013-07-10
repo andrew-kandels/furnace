@@ -17,44 +17,32 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\View\Helper;
+namespace Furnace\Factory\View\Helper;
 
-use Zend\View\Helper\AbstractHelper;
-use Furnace\Entity\Job as JobEntity;
+use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Furnace\View\Helper\Refresh as RefreshViewHelper;
 
 /**
- * Furnace job status view helper
+ * Factory class for the refresh view helper.
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Status extends AbstractHelper
+class Refresh implements FactoryInterface
 {
     /**
-     * Invokes the view helper
+     * Create the service (factory)
      *
-     * @param   Furnace\Entity\Job
-     * @return  string
+     * @param   Zend\ServiceManager\ServiceLocatorInterface
+     * @return  Service|null
      */
-    public function __invoke(JobEntity $job)
+    public function createService(ServiceLocatorInterface $sm)
     {
-        if ($job->isQueued()) {
-            $status = 'queued';
-        } elseif ($job->isCompleted()) {
-            $status = 'completed';
-        } elseif ($job->isStarted()) {
-            $status = 'started';
-        } elseif ($job->getError()) {
-            $status = 'error';
-        } else {
-            $status = 'pending';
-        }
+        $viewHelper = new RefreshViewHelper();
 
-        return $this->view->render('furnace/partials/status', array(
-            'status' => $status,
-            'job' => $job,
-        ));
+        return $viewHelper;
     }
 }

@@ -73,7 +73,7 @@ class Job extends AbstractActionController
      */
     public function listAction()
     {
-        $jobs = $this->service->find();
+        $jobs = $this->service->sort(array('priority' => 1))->find();
 
         return new ViewModel(array(
             'jobs' => $jobs,
@@ -89,8 +89,14 @@ class Job extends AbstractActionController
     {
         $form = $this->getServiceLocator()->get('FurnaceJobForm');
 
-        if ($this->getRequest()->isPost() && $return = $this->onCreate($form)) {
-            return $return;
+        if ($this->getRequest()->isPost()) {
+            if ($return = $this->onCreate($form)) {
+                return $return;
+            }
+        } else {
+            $form->setData(array(
+                'startAt' => date('Y-m-d'),
+            ));
         }
 
         return array(
@@ -115,6 +121,7 @@ class Job extends AbstractActionController
         $data = $form->getData(); // filtered, clean data
 
         $job = new JobEntity($data);
+        $this->setDependencies($job);
 
         if ($this->service->findByName($job->getName())) {
             $this->flashMessenger()->addErrorMessage('Name already in use by another job.');
@@ -136,7 +143,10 @@ class Job extends AbstractActionController
 
         $this->flashMessenger()->addSuccessMessage('Job created successfully.');
 
-        return $this->redirect()->toRoute('furnace-crud');
+        return $this->redirect()->toRoute('furnace-crud', array(
+            'action' => 'view',
+            'param'  => $job->getName(),
+        ));
     }
 
     /**
@@ -167,29 +177,106 @@ class Job extends AbstractActionController
             }
         }
 
+        $dependencies = array();
+        if ($arr = $job->getDependencies()) {
+            foreach ($arr as $dependency) {
+                if ($subJob = $this->service->findByName($dependency)) {
+                    $dependencies[] = $subJob;
+                }
+            }
+        }
+
         return array(
             'job' => $job,
             'elapsed' => $elapsed,
+            'dependencies' => $dependencies,
         );
     }
 
     /**
-     * Exports the CSS for the jobs module (since we don't know how the application
-     * is configured to serve per-module files.
+     * Edits a single job.
      *
-     * @return  Response
+     * @return  array
      */
-    public function cssAction()
+    public function editAction()
     {
-        $response = $this->getResponse();
-        $response->setContent(file_get_contents(__DIR__ . '/../../../public/css/style.css'))
-            ->setStatusCode(200);
+        if (!$param = $this->params()->fromRoute('param')) {
+            return $this->redirect()->toRoute('furnace-crud');
+        }
 
-        $response->getHeaders()
-            ->addHeaderLine('Content-Type', 'text/css; charset=UTF-8')
-            ->addHeaderLine('Cache-Control', 'private, max-age=0')
-            ->addHeaderLine('Expires', '-1');
+        if (!$job = $this->service->findByName($param)) {
+            $this->flashMessenger()->addErrorMessage('The job you were trying to view no longer exists.');
+            return $this->redirect()->toRoute('furnace-crud');
+        }
 
-        return $response;
+        $form = $this->getServiceLocator()->get('FurnaceJobForm');
+        $form->get('name')->setAttribute('readonly', true);
+
+        if ($this->getRequest()->isPost()) {
+            if ($return = $this->onEdit($job, $form)) {
+                return $return;
+            }
+        } else {
+            $form->setData(array(
+                'startAt' => $job->getStartAt()->format('Y-m-d'),
+            ) + $job->export());
+        }
+
+        return array(
+            'form' => $form,
+            'job'  => $job,
+        );
+    }
+
+    /**
+     * Post to the editAction()
+     *
+     * @param   Furnace\Entity\Job
+     * @param   Zend\Form\AbstractForm
+     * @return  mixed
+     */
+    protected function onEdit(JobEntity $job, $form)
+    {
+        $form->setData($this->getRequest()->getPost());
+
+        if (!$form->isValid()) {
+            return false;
+        }
+
+        $data = $form->getData(); // filtered, clean data
+
+        $job->fromArray(array('name' => $job->getName()) + $data);
+        $this->setDependencies($job);
+
+        $this->service->save($job);
+
+        $this->flashMessenger()->addSuccessMessage('Changes to job have been saved successfully.');
+
+        return $this->redirect()->toRoute('furnace-crud', array(
+            'action' => 'view',
+            'param'  => $job->getName(),
+        ));
+    }
+
+    /**
+     * Gets a list of dependencies from the post data to save to the 
+     * job entity.
+     *
+     * @param   Furnace\Entity\Job
+     * @return  $this
+     */
+    protected function setDependencies(JobEntity $job)
+    {
+        if (!$dependencies = explode(',', $this->params()->fromPost('dependencies'))) {
+            return array();
+        }
+
+        if ($arr = $this->service->validateNames($job->getName(), $dependencies)) {
+            $job->setDependencies($arr);
+        } else {
+            $job->clear('dependencies');
+        }
+
+        return $this;
     }
 }

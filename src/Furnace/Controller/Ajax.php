@@ -24,6 +24,7 @@ use Furnace\Entity\Job as JobEntity;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\EventManager\EventManagerInterface;
+use Zend\Session\Container as SessionContainer;
 
 /**
  * Furnace ajax controller.
@@ -96,5 +97,20 @@ class Ajax extends AbstractActionController
         $viewModel->setTerminal(true);
 
         return $viewModel;
+    }
+
+    /**
+     * Changes the session's refresh value.
+     *
+     * @return  array
+     */
+    public function setRefreshAction()
+    {
+        $checked = $this->params()->fromPost('checked') == 'yes';
+        $session = new SessionContainer('jobrefresh');
+
+        $session->checked = $checked ? 'yes' : 'no';
+
+        return $this->getResponse()->setStatusCode(200)->setContent('');
     }
 }

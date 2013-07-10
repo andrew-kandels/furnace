@@ -17,44 +17,34 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\View\Helper;
+namespace Furnace\Entity\Definition;
 
-use Zend\View\Helper\AbstractHelper;
-use Furnace\Entity\Job as JobEntity;
+use Contain\Entity\Definition\AbstractDefinition;
 
 /**
- * Furnace job status view helper
+ * Contain definition class describing a Furnace heartbeat/cron.
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Status extends AbstractHelper
+class Heartbeat extends AbstractDefinition
 {
     /**
-     * Invokes the view helper
+     * Configure the entity properties.
      *
-     * @param   Furnace\Entity\Job
-     * @return  string
+     * @return  void
      */
-    public function __invoke(JobEntity $job)
+    public function setUp()
     {
-        if ($job->isQueued()) {
-            $status = 'queued';
-        } elseif ($job->isCompleted()) {
-            $status = 'completed';
-        } elseif ($job->isStarted()) {
-            $status = 'started';
-        } elseif ($job->getError()) {
-            $status = 'error';
-        } else {
-            $status = 'pending';
-        }
+        $this->registerTarget(AbstractDefinition::ENTITY, __DIR__ . '/..')
+             ->registerTarget(AbstractDefinition::FILTER, __DIR__ . '/../Filter');
 
-        return $this->view->render('furnace/partials/status', array(
-            'status' => $status,
-            'job' => $job,
+        $this->setProperty('name', 'string', array(
+            'primary' => true,
         ));
+        $this->setProperty('at', 'dateTime');
+        $this->setProperty('pidOf', 'integer');
     }
 }

@@ -47,6 +47,7 @@ class Job extends AbstractDefinition
              ->registerMethod('start')
              ->registerMethod('progress')
              ->registerMethod('complete')
+             ->registerMethod('incomplete')
              ->registerMethod('fail')
              ->registerMethod('schedule')
              ->registerTarget(AbstractDefinition::ENTITY, __DIR__ . '/..')
@@ -223,7 +224,7 @@ class Job extends AbstractDefinition
             throw new \RuntimeException('Cannot start job as it has already been started.');
         }
 
-        $this->clear(array('completedAt', 'queuedAt'));
+        $this->clear(array('completedAt', 'queuedAt', 'messages', 'error'));
         $this->setPercentComplete(0);
         $this->setStartedAt(time());
 
@@ -339,13 +340,44 @@ class Job extends AbstractDefinition
             $history->setStats($hash = $this->getStats());
         }
 
-        $this->addHistory($history);
+        $this->unshiftHistory($history);
 
         $this->addMessages(sprintf('Job completed at %s',
             date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp()))
         );
 
         $this->clear('startedAt');
+
+        return $this;
+    }
+
+    /**
+     * Marks the internal properties for the entity to reflect that it has
+     * not been completed.
+     *
+     * @return  $this
+     */
+    public function incomplete()
+    {
+        if (!$this->isCompleted()) {
+            throw new \RuntimeException('Job is already marked as incomplete.');
+        }
+
+        $this->clear(array(
+            'queuedAt',
+            'startedAt',
+            'completedAt',
+            'error',
+        ));
+
+        if ($history = $this->getHistory() ?: array()) {
+            if ($history instanceof \ContainMapper\Cursor) {
+                $history = $history->export();
+            }
+
+            array_pop($history);
+            $this->setHistory($history);
+        }
 
         return $this;
     }
@@ -360,16 +392,14 @@ class Job extends AbstractDefinition
      */
     public function fail($message = '', $incStats = true)
     {
-        if (!$this->getCompletedAt()) {
-            throw new \RuntimeException('Cannot complete job as the completedAt property is empty.');
+        if ($this->getCompletedAt()) {
+            throw new \RuntimeException('Cannot fail job as it\'s been completed');
         }
 
-        if (!$this->getStartedAt()) {
-            throw new \RuntimeException('Cannot complete job as the startedAt property is empty.');
-        }
+        $this->setCompletedAt(time());
 
         $history = new \Furnace\Entity\History(array(
-            'startedAt' => $this->getStartedAt(),
+            'startedAt' => $this->getStartedAt() ?: time(),
             'failedAt' => $this->getCompletedAt(),
             'message' => $message,
         ));
@@ -378,16 +408,15 @@ class Job extends AbstractDefinition
             $history->setStats($this->getStats());
         }
 
-        $this->addHistory($history);
+        $this->unshiftHistory($history);
 
-        $this->clear('startedAt');
-        $this->setCompletedAt(time());
+        $this->clear(array('startedAt', 'queuedAt'));
         $this->setError(true);
 
         $this->addMessages(sprintf('Job failed at %s: %s',
-            date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp())),
+            date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp()),
             $message
-        );
+        ));
 
         return $this;
     }

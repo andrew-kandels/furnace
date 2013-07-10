@@ -5,21 +5,10 @@ echo $this->doctype();
 $this->headMeta()
     ->appendName('viewport', 'width=device-width');
 
-if ($this->bootstrapCss) {
-    $this->headLink()->appendStylesheet($this->bootstrapCss);
-}
-
 $this->headLink()->appendStylesheet($this->url('furnace-css'));
 
 $this->inlineScript()
-    ->appendFile('http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js')
-    ->appendFile($this->url('furnace-js', array(
-        'file' => 'job.js',
-    )));
-
-if ($this->bootstrapJs) {
-    $this->inlineScript()->appendFile($this->bootstrapJs);
-}
+    ->appendFile($this->url('furnace-js'));
 
 ?>
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 ie6" lang="en"> <![endif]-->

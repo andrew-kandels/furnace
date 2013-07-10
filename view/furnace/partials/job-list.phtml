@@ -1,0 +1,77 @@
+<?php if ($num): ?>
+
+<div class="table-container">
+    <table class="table table-condensed table-hover jobs-list">
+    <thead>
+        <tr>
+            <?php if ($checkbox): ?>
+                <th class="column-action"><input type="checkbox" class="select-all"/></th>
+            <?php endif; ?>
+            <th class="column-priority"><?php echo $this->translate('Priority'); ?></th>
+            <th class="column-name"><?php echo $this->translate('Name'); ?></th>
+            <th class="column-status"><?php echo $this->translate('Status'); ?></th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($arr as $job): ?>
+        <tr>
+            <?php if ($checkbox): ?>
+                <td class="column-action">
+                    <input type="checkbox" class="mass-option" 
+                        name="select-<?php echo $this->escapeHtml($job->getName()); ?>" 
+                        value="<?php echo $this->escapeHtml($job->getName()); ?>"
+                    />
+                </td>
+            <?php endif; ?>
+            <td class="column-priority">
+                <?php echo number_format($job->getPriority(), 0); ?>
+            </td>
+            <td class="column-name">
+                <a href="<?php echo $this->url('furnace-crud', array(
+                    'action' => 'view',
+                    'param'  => $job->getName(),
+                )); ?>">
+                    <?php echo $this->escapeHtml($job->getName()); ?>
+                </a>
+                <?php if ($description = $job->getDescription()): ?>
+                    &hellip; <span class="muted"><?php echo $this->escapeHtml($description); ?></span>
+                <?php endif; ?>
+
+                <?php if ($dependencies = $job->getExtendedProperty('dependencies')): ?>
+                    <div class="job-dependency-list">
+                        <small class="muted"><?php echo $this->translate('Dependencies'); ?>:</small>
+                        <ul>
+                        <?php foreach ($dependencies as $dependency): ?>
+                            <li>
+                                <a href="<?php echo $this->url('furnace-crud', array(
+                                    'action' => 'view',
+                                    'param'  => $dependency->getName(),
+                                )); ?>" class="job-dependency-link"><?php echo $this->escapeHtml($dependency->getName()); ?></a>
+                                <?php echo $this->furnaceStatus($dependency); ?>
+                            </li>
+                        <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php echo $this->furnaceStatus($job); ?>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+    </table>
+</div>
+
+<?php else: ?>
+
+<div class="alert alert-info">
+    <?php echo $this->translate('There are no defined jobs.'); ?>
+    <?php printf($this->translate('You can <a href="%s">create one</a>.'),
+        $this->url('furnace-crud', array(
+            'action' => 'create',
+        ))
+    ); ?>
+</div>
+
+<?php endif; ?>

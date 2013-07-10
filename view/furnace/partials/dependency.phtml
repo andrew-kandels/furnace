@@ -1,0 +1,9 @@
+<div class="control-group" id="control-group-dependency">
+    <label for="dependency" class="control-label"><?php echo $this->translate('Dependencies'); ?></label>
+    <div class="controls">
+        <?php echo $this->formElement($element); ?>
+        <a href="#" class="add-dependency btn"><?php echo $this->translate('Add'); ?></a>
+        <ul class="dependency-container"></ul>
+        <input type="hidden" name="dependencies" id="dependencies" value="<?php echo $dependencies; ?>"/>
+    </div>
+</div>

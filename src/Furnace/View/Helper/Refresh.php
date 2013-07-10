@@ -21,16 +21,17 @@ namespace Furnace\View\Helper;
 
 use Zend\View\Helper\AbstractHelper;
 use Furnace\Entity\Job as JobEntity;
+use Zend\Session\Container as SessionContainer;
 
 /**
- * Furnace job status view helper
+ * Furnace job refresh view helper
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Status extends AbstractHelper
+class Refresh extends AbstractHelper
 {
     /**
      * Invokes the view helper
@@ -38,23 +39,16 @@ class Status extends AbstractHelper
      * @param   Furnace\Entity\Job
      * @return  string
      */
-    public function __invoke(JobEntity $job)
+    public function __invoke()
     {
-        if ($job->isQueued()) {
-            $status = 'queued';
-        } elseif ($job->isCompleted()) {
-            $status = 'completed';
-        } elseif ($job->isStarted()) {
-            $status = 'started';
-        } elseif ($job->getError()) {
-            $status = 'error';
-        } else {
-            $status = 'pending';
+        $session = new SessionContainer('jobrefresh');
+
+        if (!$session->checked) {
+            $session->checked = 'yes';
         }
 
-        return $this->view->render('furnace/partials/status', array(
-            'status' => $status,
-            'job' => $job,
+        return $this->view->render('furnace/partials/refresh', array(
+            'refresh' => $session->checked == 'yes',
         ));
     }
 }

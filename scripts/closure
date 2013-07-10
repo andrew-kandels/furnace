@@ -1,0 +1,39 @@
+#!/bin/bash
+cd "$(dirname $0)/.."
+javaPath="$(which java)"
+projectPath="$(pwd)/../../.."
+
+if [ ! -x "$javaPath" ]; then
+    echo "Java not installed or not in path." 1>&2
+    exit 1
+fi
+
+closureJar="$projectPath/scripts/compiler.jar"
+if [ ! -f "$closureJar" ]; then
+    echo "Closure compiler not found in scripts project directory ($closureJar)" 1>&2
+    exit 1
+fi
+
+$javaPath -jar $closureJar --js \
+    $projectPath/public/assets/js/modernizr.custom.25800.min.js \
+    $projectPath/public/assets/js/jquery-1.8.3.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-modal.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-tooltip.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-popover.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-carousel.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-scrollspy.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-transition.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-affix.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-alert.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-tab.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-collapse.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-button.js \
+    $projectPath/vendor/twitter/bootstrap/js/bootstrap-typeahead.js \
+    $projectPath/public/assets/js/bootstrap-dropdown.js \
+    js/job.js \
+    js/refresh.js \
+    js/dependency.js \
+    js/mass-actions.js \
+    >public/js/furnace.js
+
+exit $?

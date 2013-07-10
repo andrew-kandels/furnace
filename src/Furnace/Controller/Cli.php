@@ -17,44 +17,53 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\View\Helper;
+namespace Furnace\Controller;
 
-use Zend\View\Helper\AbstractHelper;
-use Furnace\Entity\Job as JobEntity;
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Console\Request as ConsoleRequest;
+use Furnace\Service\Job as JobService;
 
 /**
- * Furnace job status view helper
+ * Command Line Interface (CLI) Controller
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Status extends AbstractHelper
+class Cli extends AbstractActionController
 {
     /**
-     * Invokes the view helper
+     * @var Furnace\Service\Job
+     */
+    protected $service;
+
+    /**
+     * Constructor
      *
-     * @param   Furnace\Entity\Job
+     * @param   Furnace\Service\Job
+     * @return  void
+     */
+    public function __construct(JobService $service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * Executes furnace's heartbeat.
+     *
      * @return  string
      */
-    public function __invoke(JobEntity $job)
+    public function heartbeatAction()
     {
-        if ($job->isQueued()) {
-            $status = 'queued';
-        } elseif ($job->isCompleted()) {
-            $status = 'completed';
-        } elseif ($job->isStarted()) {
-            $status = 'started';
-        } elseif ($job->getError()) {
-            $status = 'error';
-        } else {
-            $status = 'pending';
+        if (!$this->getRequest() instanceof ConsoleRequest) {
+            throw new \RuntimeException('You can only use this action from a console!');
         }
 
-        return $this->view->render('furnace/partials/status', array(
-            'status' => $status,
-            'job' => $job,
-        ));
+        $startedAt = time();
+
+        $this->service->heartbeat();
+
+        return sprintf('All done, took %d seconds.%s', time() - $startedAt, PHP_EOL);
     }
 }

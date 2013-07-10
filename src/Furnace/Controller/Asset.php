@@ -58,10 +58,8 @@ class Asset extends AbstractActionController
      */
     public function jsAction()
     {
-        $file = $this->params()->fromRoute('file');
-
         $response = $this->getResponse();
-        $response->setContent(file_get_contents(__DIR__ . '/../../../public/js/' . $file))
+        $response->setContent(file_get_contents(__DIR__ . '/../../../public/js/furnace.js'))
             ->setStatusCode(200);
 
         $response->getHeaders()

@@ -24,6 +24,7 @@ use ContainMapper\Mapper;
 use ContainMapper\Cursor;
 use RuntimeException;
 use Furnace\Entity\Job as JobEntity;
+use Furnace\Entity\Heartbeat as HeartbeatEntity;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
 use Furnace\Jobs\JobInterface;
@@ -46,6 +47,11 @@ class Job extends AbstractService
     /**
      * @var ContainMapper\Mapper
      */
+    protected $heartbeat;
+
+    /**
+     * @var ContainMapper\Mapper
+     */
     protected $config;
 
     /**
@@ -54,14 +60,20 @@ class Job extends AbstractService
     protected $serviceLocator;
 
     /**
+     * @var string
+     */
+    protected $lastError;
+
+    /**
      * Constructor
      *
      * @param   ContainMapper\Mapper
      * @return  void
      */
-    public function __construct(Mapper $mapper, array $config, ServiceLocatorInterface $sm)
+    public function __construct(Mapper $mapper, Mapper $heartbeat, array $config, ServiceLocatorInterface $sm)
     {
         $this->mapper = $mapper;
+        $this->heartbeat = $heartbeat;
         $this->config = $config;
         $this->serviceLocator = $sm; // purely for instantiating workers
     }
@@ -80,6 +92,19 @@ class Job extends AbstractService
     }
 
     /**
+     * Finds a single job by its name/primary key value.
+     *
+     * @param   array                           Job Names
+     * @return  Furnace\Entity\Job
+     */
+    public function findByNames(array $names)
+    {
+        return $this->prepare($this->mapper)->find(array(
+            '_id' => array('$in' => $names),
+        ));
+    }
+
+    /**
      * Finds jobs by criterion.
      *
      * @param   array                           Search Criterion
@@ -88,6 +113,20 @@ class Job extends AbstractService
     public function find(array $where = array())
     {
         return $this->prepare($this->mapper)->find($where);
+    }
+
+    /**
+     * Finds all jobs not by a given name.
+     *
+     * @param   string                              Job Name to Exclude
+     * @return  Furnace\Entity\Job[] (via ContainMapper\Cursor)
+     */
+    public function findNotNamed($name)
+    {
+        return $this->prepare($this->mapper)->find(array(
+            '_id' => array('$ne' => $name),
+            'schedule' => array('$in' => array('daily', 'monthly', 'weekly')),
+        ));
     }
 
     /**
@@ -186,6 +225,42 @@ class Job extends AbstractService
     }
 
     /**
+     * Checks to see if a job's dependencies have been met.
+     *
+     * @param   Furnace\Entity\Job
+     * @return  boolean
+     */
+    public function hasDependencies(JobEntity $job)
+    {
+        if (!$dependencies = $job->getDependencies()) {
+            return true;
+        }
+
+        $rs = $this->findByNames($dependencies);
+        $failed = array();
+
+        foreach ($rs as $dependency) {
+            if (!$dependency->isCompleted()) {
+                $failed[] = $dependency->getName();
+            }
+        }
+            
+        if ($failed) {
+            $this->lastError = sprintf(
+                'Cannot start job \'%s\' as %d dependenc%s not been met: %s',
+                $job->getName(),
+                number_format($num = count($failed), 0),
+                $num != 1 ? 'ies have' : 'y has',
+                implode(', ', $failed)
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Update a job to reflect it has been started.
      *
      * @param   Furnace\Entity\Job
@@ -193,6 +268,11 @@ class Job extends AbstractService
      */
     public function start(JobEntity $job)
     {
+        if (!$this->hasDependencies($job)) {
+            throw new RuntimeException($this->lastError);
+        }
+
+        $job->clear('logs');
         $job->start();
         $this->save($job);
         return $this;
@@ -207,6 +287,19 @@ class Job extends AbstractService
     public function complete(JobEntity $job)
     {
         $job->complete();
+        $this->save($job);
+        return $this;
+    }
+
+    /**
+     * Update a job to reflect it has not been completed.
+     *
+     * @param   Furnace\Entity\Job
+     * @return  $this
+     */
+    public function incomplete(JobEntity $job)
+    {
+        $job->incomplete();
         $this->save($job);
         return $this;
     }
@@ -272,5 +365,108 @@ class Job extends AbstractService
         }
 
         return $worker;
+    }
+
+    /**
+     * Given a list of job names, return a similar list of items in the original list
+     * that exist as valid jobs and that don't match a given name.
+     *
+     * @param   string                          Excluded job name
+     * @param   array                           List
+     * @return  array                           Validated list
+     */
+    public function validateNames($exclude, array $names)
+    {
+        $names = array_flip($names);
+        unset($names[$exclude]);
+        $names = array_flip($names);
+
+        $rs = $this->properties('_id')->findByNames($names);
+
+        $return = array();
+        foreach ($rs as $job) {
+            $return[] = $job->getName();
+        }
+
+        return $return;
+    }
+
+    /**
+     * Gets the last error message.
+     *
+     * @return  string
+     */
+    public function getLastError()
+    {
+        return $this->lastError ?: '';
+    }
+
+    /**
+     * Attempts to acquire an exclusive work lock.
+     *
+     * @return  boolean
+     */
+    public function acquireLock()
+    {
+        if ($heartbeat = $this->heartbeat->findOne(array('_id' => 'main'))) {
+            $status = sprintf('/proc/%d/status', $heartbeat->getPidOf());
+
+            if (file_exists($status)) {
+                $this->lastError = sprintf('Cannot acquire lock, lock already acquired by pid #%d at %s (still running)',
+                    $heartbeat->getPidOf(),
+                    $heartbeat->getAt()->format('Y-m-d H:i:s')
+                );
+
+                return false;
+            } else {
+                $this->releaseLock();
+            }
+        }
+
+        $heartbeat = new HeartbeatEntity(array(
+            'name' => 'main',
+            'at' => time(),
+            'pid' => getmypid(),
+        ));
+
+        $this->heartbeat->persist($heartbeat);
+
+        return true;
+    }
+
+    /**
+     * Releases a previously acquired lock from acquireLock().
+     *
+     * @return  $this
+     */
+    public function releaseLock()
+    {
+        $this->heartbeat->getConnection()->getCollection()->remove(array('_id' => 'main'));
+        return $this;
+    }
+
+    /**
+     * Called routinely through cron or a scheduler to trigger our scheduling
+     * checks.
+     *
+     * @return  void
+     */
+    public function heartbeat()
+    {
+        if (!$this->acquireLock()) {
+            throw new RuntimeException($this->lastError);
+        }
+        
+        $rs = $this->mapper
+            ->sort(array('priority' => 1))
+            ->find();
+
+        foreach ($rs as $job) {
+            if (!$job->isQueued() && !$job->isStarted() && !$job->isCompleted() && $this->hasDependencies($job)) {
+                $this->run($job);
+                $this->releaseLock();
+                return;
+            }
+        }
     }
 }

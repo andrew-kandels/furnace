@@ -17,21 +17,25 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\Factory\Service;
+namespace Furnace\Factory\Mapper;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use ContainMapper\Driver\MongoDB\Driver;
+use ContainMapper\Mapper;
+use ContainMapper\Driver\MongoDB\Connection;
 use Furnace\Service\Job as JobService;
+use RuntimeException;
 
 /**
- * Factory class for the job service.
+ * Factory class for the job service's heartbeat mapper.
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Job implements FactoryInterface
+class Heartbeat implements FactoryInterface
 {
     /**
      * Create the service (factory)
@@ -41,14 +45,23 @@ class Job implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $sm)
     {
-        $config = $sm->get('config');
-        $config = $config['furnace'];
+        $config =  $sm->get('config');
+        $config =  $config['furnace']['database'];
 
-        return new JobService(
-            $sm->get('FurnaceJobMapper'),
-            $sm->get('FurnaceHeartbeatMapper'),
-            $config,
-            $sm
-        );
+        $camelCase = implode('', array_map(function($a) {
+            return ucfirst($a);
+        }, explode('-', $config['adapter'])));
+
+        if (!$dbh = $sm->get('Furnace' . $camelCase . 'Adapter')) {
+            throw new RuntimeException('Adapter \'' . $adapter . '\' is not currently '
+                . 'supported.'
+            );
+        }
+
+        $connection = new Connection($dbh, $config['parameters']['name'], 'heartbeat');
+        $driver     = new Driver($connection);
+        $mapper     = new Mapper('Furnace\Entity\Heartbeat', $driver);
+
+        return $mapper;
     }
 }

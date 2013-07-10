@@ -19,6 +19,7 @@ $compiler = new Contain\Entity\Compiler\Compiler();
 try {
     $compiler->compile('Furnace\Entity\Definition\History');
     $compiler->compile('Furnace\Entity\Definition\Job');
+    $compiler->compile('Furnace\Entity\Definition\Heartbeat');
 } catch (Exception $e) {
     fprintf(STDERR, "Exception: %s\n--\n%s\n\n", $e->getMessage(), $e->getTraceAsString());
     exit(1);

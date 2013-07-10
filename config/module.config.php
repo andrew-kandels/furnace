@@ -1,10 +1,6 @@
 <?php
 return array(
     'furnace' => array(
-        'assets' => array(
-            // Web Path to Application or Twitter Bootstrap CSS File
-            'css' => '/assets/css/network.css',
-        ),
         'database' => array(
             'adapter' => 'Mongo',
             'parameters' => array(
@@ -25,6 +21,7 @@ return array(
         'factories' => array(
             'FurnaceJobService' => 'Furnace\Factory\Service\Job',
             'FurnaceJobMapper' => 'Furnace\Factory\Mapper\Job',
+            'FurnaceHeartbeatMapper' => 'Furnace\Factory\Mapper\Heartbeat',
             'FurnaceJobForm' => 'Furnace\Factory\Form\Job',
 
             // Mapper Adapters
@@ -36,11 +33,15 @@ return array(
             'furnaceStatus' => 'Furnace\Factory\View\Helper\Status',
             'furnaceFrequency' => 'Furnace\Factory\View\Helper\Frequency',
             'furnaceFormat' => 'Furnace\Factory\View\Helper\Format',
+            'furnaceRefresh' => 'Furnace\Factory\View\Helper\Refresh',
+            'furnaceDependency' => 'Furnace\Factory\View\Helper\Dependency',
+            'furnaceJobList' => 'Furnace\Factory\View\Helper\JobList',
         ),
     ),
     'controllers' => array(
         'factories' => array(
             'FurnaceJobController' => 'Furnace\Factory\Controller\Job',
+            'FurnaceCliController' => 'Furnace\Factory\Controller\Cli',
             'FurnaceCommandController' => 'Furnace\Factory\Controller\Command',
         ),
         'invokables' => array(
@@ -53,6 +54,21 @@ return array(
             'furnace/layout'             => __DIR__ . '/../view/layout/layout.phtml',
         ),
         'template_path_stack'            => array(__DIR__ . '/../view'),
+    ),
+    'console' => array(
+        'router' => array(
+            'routes' => array(
+                'furnace-heartbeat' => array(
+                    'options' => array(
+                        'route' => 'furnace',
+                        'defaults' => array(
+                            'controller' => 'FurnaceCliController',
+                            'action' => 'heartbeat',
+                        ),
+                    ),
+                ),
+            ),
+        ),
     ),
     'router' => array(
         'routes' => array(
@@ -86,9 +102,9 @@ return array(
                 ),
             ),
             'furnace-js' => array(
-                'type' => 'segment',
+                'type' => 'literal',
                 'options' => array(
-                    'route'    => '/furnace/js[/:file]',
+                    'route'    => '/furnace/js',
                     'defaults' => array(
                         'controller' => 'FurnaceAssetController',
                         'action'     => 'js',

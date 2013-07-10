@@ -1,0 +1,87 @@
+@import "bootstrap";
+@import "compass";
+
+#jobs-container {
+    margin: 0 auto 1em auto;
+    width: 90%;
+    @include box-shadow(0 5px 9px 4px rgba(0, 0, 0, 0.2));
+    max-width: 1220px;
+    > .jobs-content {
+      padding: 1em 1.5em 2.5em 1.5em;
+      h1 {
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 0.5em;
+      }
+    }
+}
+
+table.jobs-list {
+  .column-action { width: 30px; text-align: right; }
+  .column-priority { width: 60px; text-align: center; }
+  .column-status { width: 300px; }
+}
+
+.table-container {
+  @include box-shadow(0 1px 2px 0 rgba(0, 0, 0, 0.3));
+  border: 1px solid #c0c0c0;
+  padding: 0.5em;
+  @include border-radius(6px);
+  margin-bottom: 1em;
+}
+
+form .control-group.control-text {
+  margin: 5px 0;
+  .controls {
+    padding-top: 5px;
+  }
+}
+
+#job-refresh {
+  @include inline-block;
+  vertical-align: bottom;
+  padding-left: 1em;
+}
+
+#controls-submit .help-block {
+  @include inline-block;
+  padding-left: 1em;
+  margin-top: -2px;
+}
+
+#control-group-dependency {
+  .dependency-container {
+    list-style: none;
+    border: 1px solid #c0c0c0;
+    background: #f9f9f9;
+    padding: 0.5em;
+    margin: 5px 0 0 0;
+    li {
+      border-top: 1px solid #e0e0e0;
+      &:first-child {
+        border-top: 0;
+      }
+      &:hover {
+        background: #efefef;
+      }
+    }
+    .remove {
+      padding-left: 3px;
+      border-right: 1px dotted #c0c0c0;
+      padding-right: 4px;
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.job-dependency-list {
+  ul { 
+    list-style: circle;
+    .job-dependency-link {
+      @include inline-block;
+      width: 200px;
+    }
+  }
+}

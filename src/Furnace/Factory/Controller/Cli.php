@@ -17,38 +17,31 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\Factory\Service;
+namespace Furnace\Factory\Controller;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Furnace\Service\Job as JobService;
+use Furnace\Controller\Cli as CliController;
 
 /**
- * Factory class for the job service.
+ * Factory for the cli controller.
  *
- * @category    akandels
- * @package     furnace
- * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
- * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
+ * @category   CaringNetwork
+ * @package    CaringNetwork
+ * @subpackage CaringNetwork\Controller
  */
-class Job implements FactoryInterface
+class Cli implements FactoryInterface
 {
     /**
-     * Create the service (factory)
+     * Creates the job controller.
      *
      * @param   Zend\ServiceManager\ServiceLocatorInterface
-     * @return  Service|null
+     * @return  Furnace\Controller\Cli
      */
     public function createService(ServiceLocatorInterface $sm)
     {
-        $config = $sm->get('config');
-        $config = $config['furnace'];
-
-        return new JobService(
-            $sm->get('FurnaceJobMapper'),
-            $sm->get('FurnaceHeartbeatMapper'),
-            $config,
-            $sm
+        return new CliController(
+            $sm->getServiceLocator()->get('FurnaceJobService')
         );
     }
 }

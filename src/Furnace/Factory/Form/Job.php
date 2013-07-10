@@ -66,11 +66,14 @@ class Job implements FactoryInterface
         $form->setAttribute('class', 'form-horizontal');
 
         $form->add($factory->createElement(array(
-            'name' => 'submit-btn',
+            'name' => 'submit',
             'type' => 'submit',
             'attributes' => array(
                 'value'                 => 'Create',
                 'class'                 => 'btn btn-primary',
+            ),
+            'options' => array(
+                'help-block' => '<a href="#" onclick="history.go(-1);return false;">Cancel</a>',
             ),
         )));
 

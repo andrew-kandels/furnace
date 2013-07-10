@@ -1,12 +1,14 @@
-<h2><?php echo $this->translate('Add Job'); ?></h2>
+<h2><?php echo $this->translate('Edit Job'); ?></h2>
 
 <ul class="breadcrumb">
     <li><?php echo $this->translate('Furnace'); ?> <span class="divider">/</span></li>
     <li><a href="<?php echo $this->url('furnace-crud'); ?>"><?php
         echo $this->translate('Jobs List'); ?></a> <span class="divider">/</span></li>
     <li><a href="<?php echo $this->url('furnace-crud', array(
-            'action' => 'create',
-        )); ?>"><?php echo $this->translate('Create Job'); ?></a></li>
+        'action' => 'view',
+        'param'  => $job->getName(),
+    )); ?>"><?php echo $this->escapeHtml($job->getName()); ?></a> <span class="divider">/</span></li>
+    <li><?php echo $this->translate('Edit'); ?></li>
 </ul>
 
 <fieldset>
@@ -19,9 +21,11 @@
     echo $this->ztbFormElement($form->get('priority'));
     echo $this->ztbFormElement($form->get('schedule'));
     echo $this->ztbFormElement($form->get('startAt'));
-    echo $this->furnaceDependency();
+    echo $this->furnaceDependency($job);
 
-    echo $this->ztbFormElement($form->get('submit'));
+    $submit = $form->get('submit');
+    $submit->setAttribute('value', $this->translate('Save Changes'));
+    echo $this->ztbFormElement($submit);
     echo $this->form()->closeTag($form);
     ?>
 </fieldset>

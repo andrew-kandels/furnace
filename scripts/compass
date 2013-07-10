@@ -1,0 +1,19 @@
+#!/bin/bash
+compassBin=$(which compass)
+projectPath="$(dirname $0)/.."
+configFile="${projectPath}/config/compass.rb"
+
+if [ ! -x "$compassBin" ]; then
+    echo "Compass is not installed." 1>&2
+    exit 1
+fi
+
+if [ $# -ne 1 ]; then
+    cmd="watch"
+else
+    cmd="$1"
+fi
+
+$compassBin $cmd \
+    --config "$configFile" \
+    $projectPath

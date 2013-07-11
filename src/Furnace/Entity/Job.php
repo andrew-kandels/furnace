@@ -1756,4 +1756,22 @@ class Job extends AbstractEntity
         return $this;
     }
 
+    /**
+     * Gets the seconds it took to run this job the last successful time.
+     *
+     * @return  integer|false
+     */
+    public function getLastRunningTime()
+    {
+        foreach ($this->getHistory() ?: array() as $history) {
+            if (!$history->getCompletedAt() || !$history->getStartedAt()) {
+                continue;
+            }
+
+            return $history->getCompletedAt()->getTimestamp() - $history->getStartedAt()->getTimestamp();
+        }
+
+        return false;
+    }
+
 }

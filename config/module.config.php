@@ -9,6 +9,10 @@ return array(
             ),
         ),
 
+        'log' => array(
+            'maxBytes' => 1024 * 1024, // 1 KB
+        ),
+
         'jobs' => array(
             'class_template' => 'Furnace%sJob',
             'default' => 'Main',
@@ -36,6 +40,7 @@ return array(
             'furnaceRefresh' => 'Furnace\Factory\View\Helper\Refresh',
             'furnaceDependency' => 'Furnace\Factory\View\Helper\Dependency',
             'furnaceJobList' => 'Furnace\Factory\View\Helper\JobList',
+            'furnaceLog' => 'Furnace\Factory\View\Helper\Log',
         ),
     ),
     'controllers' => array(
@@ -75,7 +80,7 @@ return array(
             'furnace-crud' => array(
                 'type' => 'segment',
                 'options' => array(
-                    'route'    => '/furnace[/:action][/:param]',
+                    'route'    => '/furnace[/:action[/:param]]',
                     'defaults' => array(
                         'controller' => 'FurnaceJobController',
                         'action'     => 'list',

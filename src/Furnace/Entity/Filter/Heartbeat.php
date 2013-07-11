@@ -59,5 +59,15 @@ class Heartbeat extends InputFilter
   ),
 ),
         )));
+
+        $this->add($factory->createInput(array(
+            'name' => 'hostname',
+            'allow_empty' => true,
+        )));
+
+        $this->add($factory->createInput(array(
+            'name' => 'user',
+            'allow_empty' => true,
+        )));
     }
 }

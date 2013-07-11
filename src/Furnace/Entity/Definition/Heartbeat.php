@@ -46,5 +46,7 @@ class Heartbeat extends AbstractDefinition
         ));
         $this->setProperty('at', 'dateTime');
         $this->setProperty('pidOf', 'integer');
+        $this->setProperty('hostname', 'string');
+        $this->setProperty('user', 'string');
     }
 }

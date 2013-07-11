@@ -30,6 +30,8 @@ class Heartbeat extends AbstractEntity
   'dateFormat' => 'Y-m-d H:i:s',
 ));
         $this->define('pidOf', 'integer');
+        $this->define('hostname', 'string');
+        $this->define('user', 'string');
             }
 
 
@@ -126,6 +128,70 @@ class Heartbeat extends AbstractEntity
     public function hasPidOf()
     {
         $property = $this->property('pidOf');
+        return !($property->isUnset() || $property->isEmpty());
+    }
+
+    /**
+     * Accessor getter for the hostname property
+     *
+     * @return  See: Contain\Entity\Property\Type\StringType::getValue()
+     */
+    public function getHostname()
+    {
+        return $this->get('hostname');
+    }
+
+    /**
+     * Accessor setter for the hostname property
+     *
+     * @param   See: Contain\Entity\Property\Type\StringType::parse()
+     * @return  $this
+     */
+    public function setHostname($value)
+    {
+        return $this->set('hostname', $value);
+    }
+
+    /**
+     * Accessor existence checker for the hostname property
+     *
+     * @return  boolean
+     */
+    public function hasHostname()
+    {
+        $property = $this->property('hostname');
+        return !($property->isUnset() || $property->isEmpty());
+    }
+
+    /**
+     * Accessor getter for the user property
+     *
+     * @return  See: Contain\Entity\Property\Type\StringType::getValue()
+     */
+    public function getUser()
+    {
+        return $this->get('user');
+    }
+
+    /**
+     * Accessor setter for the user property
+     *
+     * @param   See: Contain\Entity\Property\Type\StringType::parse()
+     * @return  $this
+     */
+    public function setUser($value)
+    {
+        return $this->set('user', $value);
+    }
+
+    /**
+     * Accessor existence checker for the user property
+     *
+     * @return  boolean
+     */
+    public function hasUser()
+    {
+        $property = $this->property('user');
         return !($property->isUnset() || $property->isEmpty());
     }
 

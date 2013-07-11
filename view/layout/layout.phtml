@@ -5,7 +5,9 @@ echo $this->doctype();
 $this->headMeta()
     ->appendName('viewport', 'width=device-width');
 
-$this->headLink()->appendStylesheet($this->url('furnace-css'));
+$this->headLink()
+    ->appendStylesheet($this->url('furnace-css'))
+    ->appendStylesheet('//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css');
 
 $this->inlineScript()
     ->appendFile($this->url('furnace-js'));
@@ -28,9 +30,27 @@ echo $this->headScript();
 ?>
 </head>
 <body>
+<div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="http://contain-project.org/furnace">Furnace</a>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="">
+                        <a href="<?php echo $this->url('furnace-crud'); ?>"><?php echo $this->translate('Jobs List'); ?></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="jobs-container">
     <div class="jobs-content">
-        <h1><?php echo $this->translate('Furnace Control Panel'); ?></h1>
         <?php
         $this->flashMessenger()
             ->setMessageOpenFormat('<div%s>')
@@ -47,6 +67,31 @@ echo $this->headScript();
         ?>
     </div>
 </div>
+<div id="job-spinner" class="job-spinner">
+    <div class="floatingBarsG">
+        <div class="blockG" id="rotateG_01">
+        </div>
+        <div class="blockG" id="rotateG_02">
+        </div>
+        <div class="blockG" id="rotateG_03">
+        </div>
+        <div class="blockG" id="rotateG_04">
+        </div>
+        <div class="blockG" id="rotateG_05">
+        </div>
+        <div class="blockG" id="rotateG_06">
+        </div>
+        <div class="blockG" id="rotateG_07">
+        </div>
+        <div class="blockG" id="rotateG_08">
+        </div>
+    </div>
+</div>
+<footer>
+    <div id="footer">
+        Furnace is open source software released under the <a href="http://www.opensource.org/licenses/bsd-license.php">BSD-2 license</a> by <a href="http://andrewkandels.com/">Andrew Kandels</a>.
+    </div>
+</footer>
 <?php echo $this->inlineScript(); ?>
 </body>
 </html>

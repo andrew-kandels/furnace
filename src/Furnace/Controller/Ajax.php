@@ -51,8 +51,9 @@ class Ajax extends AbstractActionController
             ->get('FurnaceJobService');
 
         if (!$job = $service->findByName($param)) {
-            $this->flashMessenger()->addErrorMessage('Job with name \'' . $param . '\' does not exist');
-            return false;
+            return $this->getResponse()
+                ->setStatusCode(400)
+                ->setContent('Job no longer exists, was missing or not specified correctly');
         }
 
         return $job;
@@ -65,8 +66,8 @@ class Ajax extends AbstractActionController
      */
     public function getStatusAction()
     {
-        if (!$job = $this->getJobFromRoute()) {
-            return $this->redirect()->toRoute('furnace-crud');
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
         }
 
         $viewModel = new ViewModel(array(
@@ -84,8 +85,8 @@ class Ajax extends AbstractActionController
      */
     public function getUsageStatsAction()
     {
-        if (!$job = $this->getJobFromRoute()) {
-            return $this->redirect()->toRoute('furnace-crud');
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
         }
 
         $index   = abs($this->params()->fromRoute('param2') - 1);
@@ -112,5 +113,62 @@ class Ajax extends AbstractActionController
         $session->checked = $checked ? 'yes' : 'no';
 
         return $this->getResponse()->setStatusCode(200)->setContent('');
+    }
+
+    /**
+     * Refreshes a log when viewing a job.
+     *
+     * @return  array
+     */
+    public function getLogAction()
+    {
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
+        }
+
+        if (!$log = $this->params()->fromRoute('param2')) {
+            return $this->getResponse()
+                ->setStatusCode(400)
+                ->setContent('Log not specified');
+        }
+
+        $log = base64_decode($log);
+
+        if (!in_array($log, $job->getLogs() ?: array())) {
+            return $this->getResponse()
+                ->setStatusCode(400)
+                ->setContent('Log specified is not valid for the job');
+        }
+
+        $config = $this->getServiceLocator()->get('config');
+        $maxSize = $config['furnace']['log']['maxBytes'];
+
+        if (!file_exists($log)) {
+            $content = '** File no longer exists **';
+        } elseif (($bytes = filesize($log)) > $maxSize) {
+            $fp = fopen($log, 'rt');
+            fseek($fp, $bytes - $maxSize);
+            fgets($fp, 1024); // fix broken line
+            $content = '** Tailing File (exceeds ' . $maxSize . ' bytes) **' . PHP_EOL . fread($fp, $maxSize);
+            fclose($fp);
+        } else {
+            $content = file_get_contents($log, false);
+        }
+
+        $statusCode = 200;
+        if ($job->isCompleted()) {
+            $statusCode = 205; // reset content
+        }
+
+        $response = $this->getResponse()
+            ->setStatusCode($statusCode)
+            ->setContent($content);
+  
+        $response->getHeaders()
+            ->addHeaderLine('Content-Type', 'text/plain; charset=UTF-8')
+            ->addHeaderLine('Cache-Control', 'private, max-age=0')
+            ->addHeaderLine('Expires', '-1');
+
+        return $response;
     }
 }

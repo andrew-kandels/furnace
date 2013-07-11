@@ -1,4 +1,6 @@
 $(function() {
+    $('.job-status-flag').tooltip();
+
     $('.job-status').click(function(e) {
         e.preventDefault();
         var $link = $(e.currentTarget);

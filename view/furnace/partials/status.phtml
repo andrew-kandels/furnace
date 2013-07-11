@@ -1,21 +1,27 @@
-<?php if ($status == 'error'): ?>
-    <span class="label label-important"><?php echo $this->translate('Errors'); ?></span>
-
-<?php elseif ($status == 'queued'): ?>
-    <span class="label label-inverse"><?php echo $this->translate('Queued'); ?></span>
-
-<?php elseif ($status == 'completed'): ?>
-    <span class="label label-success"><?php echo $this->translate('Completed'); ?></span>
-
-<?php elseif ($status == 'started'): ?>
-    <span class="label label-info"><?php echo $this->translate('Running'); ?></span>
-
-<?php elseif ($status == 'pending'): ?>
-    <span class="label"><?php echo $this->translate('Pending'); ?></span>
-
-<?php endif; ?>
-
 <a href="<?php echo $this->url('furnace-ajax', array(
     'action' => 'get-status',
     'param' => $job->getName(),
-)); ?>" class="job-status"><small>view messages</small></a>
+)); ?>" class="job-status"><i class="icon-info-sign"></i></a>
+<?php 
+
+$caption = $this->translate('Has never been run');
+if (false !== ($time = $job->getLastRunningTime())) {
+    $caption = sprintf($this->translate('Last running time: %s'), $this->furnaceFormat(time() - $time));
+}
+
+if ($status == 'error'): ?>
+    <span class="label label-important job-status-flag" title="<?php echo $caption; ?>"><?php echo $this->translate('Errors'); ?></span>
+
+<?php elseif ($status == 'queued'): ?>
+    <span class="label label-inverse job-status-flag" title="<?php echo $caption; ?>"><?php echo $this->translate('Queued'); ?></span>
+
+<?php elseif ($status == 'completed'): ?>
+    <span class="label label-success job-status-flag" title="<?php echo $caption; ?>"><?php echo $this->translate('Completed'); ?></span>
+
+<?php elseif ($status == 'started'): ?>
+    <span class="label label-info job-status-flag" title="<?php echo $caption; ?>"><?php echo $this->translate('Running'); ?></span>
+
+<?php elseif ($status == 'pending'): ?>
+    <span class="label job-status-flag" title="<?php echo $caption; ?>"><?php echo $this->translate('Pending'); ?></span>
+
+<?php endif; ?>

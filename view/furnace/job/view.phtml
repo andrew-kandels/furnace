@@ -5,7 +5,6 @@
 </h2>
 
 <ul class="breadcrumb">
-    <li><?php echo $this->translate('Furnace'); ?> <span class="divider">/</span></li>
     <li><a href="<?php echo $this->url('furnace-crud'); ?>"><?php
         echo $this->translate('Jobs List'); ?></a> <span class="divider">/</span></li>
     <li><a href="<?php echo $this->url('furnace-crud', array(
@@ -104,6 +103,20 @@
         <label class="control-label"><?php echo $this->translate('Status'); ?></label>
         <div class="controls">
             <?php echo $this->furnaceStatus($job); ?>
+
+            <?php if ($job->isStarted()): ?>
+                <em><small><?php printf($this->translate('Started at %s, running for %s.'),
+                    $job->getStartedAt()->format('Y-m-d H:i:s'),
+                    $this->furnaceFormat($job->getStartedAt()->getTimestamp())
+                ); ?></small></em>
+
+            <?php elseif ($job->isQueued()): ?>
+                <em><small><?php printf($this->translate('Queued at %s (%s).'),
+                    $job->getQueuedAt()->format('Y-m-d H:i:s'),
+                    $this->furnaceFormat($job->getQueuedAt()->getTimestamp())
+                ); ?></small></em>
+
+            <?php endif; ?>
         </div>
     </div>
     <?php if ($elapsed): ?>
@@ -142,10 +155,7 @@
 <?php if ($logs = $job->getLogs()): ?>
 <fieldset>
     <?php foreach ($logs as $log): ?>
-        <?php if (file_exists($log)): ?>
-            <legend><?php echo $this->escapeHtml($log); ?></legend>
-            <pre class="job-output"><?php readfile($log); ?></pre>
-        <?php endif; ?>
+        <?php echo $this->furnaceLog($job, $log); ?>
     <?php endforeach; ?>
 </fieldset>
 <?php endif; ?>

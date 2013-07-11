@@ -1,3 +1,22 @@
+<?php if ($checkbox): ?>
+
+<ul class="nav nav-pills nav-job-list">
+    <?php foreach ($schedules as $value => $label): ?>
+        <li class="<?php if ($schedule == $value): ?>disabled<?php endif; ?>"><a href="<?php 
+            echo $this->url('furnace-crud', array(
+                'action' => 'list',
+                'param'  => $value,
+            )); ?>"><?php 
+            echo $this->translate($label); ?></a></li>
+    <?php endforeach; ?>
+    <li class="pull-right">
+        <form class="navbar-form pull-left">
+        <input type="text" class="span4" id="search" placeholder="<?php echo $this->translate('search'); ?>"/>
+        </form>
+    </li>
+</ul>
+
+<?php endif; ?>
 <?php if ($num): ?>
 
 <div class="table-container">
@@ -54,7 +73,7 @@
                     </div>
                 <?php endif; ?>
             </td>
-            <td>
+            <td class="column-status">
                 <?php echo $this->furnaceStatus($job); ?>
             </td>
         </tr>

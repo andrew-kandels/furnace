@@ -1,57 +1,55 @@
 <a href="<?php echo $this->url('furnace-crud', array(
     'action' => 'create',
 )); ?>" class="btn pull-right">
+    <i class="icon-plus"></i>
     <?php echo $this->translate('Create Job'); ?>
 </a>
 
-<h2><?php echo $this->translate('Jobs'); ?></h2>
+<h1><?php echo $this->translate('Jobs List'); ?></h1>
 
 <ul class="breadcrumb">
-    <li><?php echo $this->translate('Furnace'); ?> <span class="divider">/</span></li>
     <li><a href="<?php echo $this->url('furnace-crud'); ?>"><?php
         echo $this->translate('Jobs List'); ?></a></li>
 </ul>
 
-<?php echo $this->furnaceRefresh(); ?>
-
-<?php echo $this->furnaceJobList($jobs, true); ?>
+<?php echo $this->furnaceJobList($jobs, true, $schedule); ?>
 
 <div class="btn-group pull-right">
     <a class="btn btn-danger dropdown-toggle" data-toggle="dropdown" href="#">
-        Admin
+        <?php echo $this->translate('Admin'); ?>
         <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'delete-many',
-        )); ?>">Delete</a></li>
+        )); ?>"><?php echo $this->translate('Delete'); ?></a></li>
 
         <li class="divider"></li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'reset-many',
-        )); ?>">Reset</a></li>
+        )); ?>"><?php echo $this->translate('Reset'); ?></a></li>
     </ul>
 </div>
 
 <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        Action
+        <?php echo $this->translate('Action'); ?>
         <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'run-many',
-        )); ?>">Run Now</a></li>
+        )); ?>"><?php echo $this->translate('Run Now'); ?></a></li>
 
         <li class="divider"></li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'mark-completed-many',
-        )); ?>">Mark Complete</a></li>
+        )); ?>"><?php echo $this->translate('Mark Complete'); ?></a></li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'mark-incomplete-many',
-        )); ?>">Mark Incomplete</a></li>
+        )); ?>"><?php echo $this->translate('Mark Incomplete'); ?></a></li>
     </ul>
 </div>

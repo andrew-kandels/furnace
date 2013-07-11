@@ -1,24 +1,25 @@
 @import "bootstrap";
 @import "compass";
+@import "spinner";
 
 #jobs-container {
-    margin: 0 auto 1em auto;
+    margin: 0 auto 20px auto;
     width: 90%;
     @include box-shadow(0 5px 9px 4px rgba(0, 0, 0, 0.2));
     max-width: 1220px;
     > .jobs-content {
       padding: 1em 1.5em 2.5em 1.5em;
-      h1 {
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 0.5em;
-      }
     }
+}
+
+.navbar-inverse {
+  margin-bottom: 0;
 }
 
 table.jobs-list {
   .column-action { width: 30px; text-align: right; }
   .column-priority { width: 60px; text-align: center; }
-  .column-status { width: 300px; }
+  .column-status { width: 120px; text-align: right; }
 }
 
 .table-container {
@@ -84,4 +85,29 @@ form .control-group.control-text {
       width: 200px;
     }
   }
+}
+
+#job-spinner {
+  display: none;
+}
+
+.job-spinner {
+  @include inline-block;
+  vertical-align: middle;
+  margin: 0 0.5em;
+}
+
+.job-log pre {
+  overflow: auto;
+  max-height: 300px;
+}
+
+.nav-job-list {
+  margin-bottom: 0.5em;
+}
+
+#footer {
+  margin: 1em auto 3em 0;
+  text-align: center;
+  color: #666;
 }

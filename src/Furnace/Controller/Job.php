@@ -73,10 +73,32 @@ class Job extends AbstractActionController
      */
     public function listAction()
     {
-        $jobs = $this->service->sort(array('priority' => 1))->find();
+        switch ($schedule = $this->params()->fromRoute('param')) {
+            case 'daily':
+            case 'weekly':
+            case 'monthly':
+            case 'once':
+                break;
+
+            default:
+                $schedule = 'all';
+                break;
+        }
+
+        $where = array();
+        if ($schedule != 'all') {
+            $where = array(
+                'schedule' => $schedule,
+            );
+        }
+
+        $jobs = $this->service
+            ->sort(array('priority' => 1))
+            ->find($where);
 
         return new ViewModel(array(
             'jobs' => $jobs,
+            'schedule' => $schedule,
         ));
     }
 

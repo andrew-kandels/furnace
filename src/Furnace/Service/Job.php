@@ -426,7 +426,9 @@ class Job extends AbstractService
         $heartbeat = new HeartbeatEntity(array(
             'name' => 'main',
             'at' => time(),
-            'pid' => getmypid(),
+            'pidOf' => getmypid(),
+            'user' => get_current_user(),
+            'hostname' => gethostname(),
         ));
 
         $this->heartbeat->persist($heartbeat);
@@ -456,17 +458,41 @@ class Job extends AbstractService
         if (!$this->acquireLock()) {
             throw new RuntimeException($this->lastError);
         }
-        
+
+        $numQueued = $this->mapper
+            ->getConnection()
+            ->getCollection()
+            ->count(array(
+                'queuedAt' => array('$ne' => null),
+            ));
+
+        if ($numQueued) {
+            $this->lastError = sprintf('Nothing to do -- %s job%s still queued.',
+                number_format($numQueued, 0),
+                $numQueued != 1 ? 's are' : ' is'
+            );
+
+            return;
+        }
+
         $rs = $this->mapper
             ->sort(array('priority' => 1))
             ->find();
 
         foreach ($rs as $job) {
             if (!$job->isQueued() && !$job->isStarted() && !$job->isCompleted() && $this->hasDependencies($job)) {
+                $this->lastError = sprintf('Queueing job %s (priority %s, schedule %s).',
+                    $job->getName(),
+                    $job->getPriority(),
+                    $job->getSchedule()
+                );
+
                 $this->run($job);
                 $this->releaseLock();
                 return;
             }
         }
+
+        $this->lastError = 'Nothing to do.';
     }
 }

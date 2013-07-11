@@ -235,6 +235,10 @@ class Command extends AbstractActionController
 
         $service  = $this->service;
         $response = $this->makeServiceCall(function() use ($service, $job) {
+            if ($job->isQueued()) {
+                $job->clear('queuedAt');
+            }
+
             $service
                 ->queue($job)
                 ->start($job)

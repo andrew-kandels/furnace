@@ -56,9 +56,10 @@ class JobList extends AbstractHelper
      *
      * @param   Furnace\Entity\Job[]|ContainMapper\Cursor|array
      * @param   boolean                             Include checkboxes for mass actions?
+     * @param   string                              Schedule
      * @return  string
      */
-    public function __invoke($arr, $checkbox = false)
+    public function __invoke($arr, $checkbox = false, $schedule = 'all')
     {
         if ($arr instanceof JobEntity) {
             $arr = array($arr);
@@ -92,9 +93,19 @@ class JobList extends AbstractHelper
             $jobs[] = $job;
         }
 
+        $schedules = array(
+            'all'     => 'All',
+            'daily'   => 'Daily',
+            'weekly'  => 'Weekly',
+            'monthly' => 'Monthly',
+            'once'    => 'Once',
+        );
+
         return $this->view->render('furnace/partials/job-list', array(
             'arr' => $jobs,
             'num' => count($jobs),
+            'schedule' => $schedule,
+            'schedules' => $schedules,
             'checkbox' => $checkbox,
         ));
     }

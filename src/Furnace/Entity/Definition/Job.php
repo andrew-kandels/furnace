@@ -50,6 +50,7 @@ class Job extends AbstractDefinition
              ->registerMethod('incomplete')
              ->registerMethod('fail')
              ->registerMethod('schedule')
+             ->registerMethod('getLastRunningTime')
              ->registerTarget(AbstractDefinition::ENTITY, __DIR__ . '/..')
              ->registerTarget(AbstractDefinition::FILTER, __DIR__ . '/../Filter')
              ->registerTarget(AbstractDefinition::FORM, __DIR__ . '/../Form');
@@ -630,5 +631,23 @@ class Job extends AbstractDefinition
         }
 
         return $this;
+    }
+
+    /**
+     * Gets the seconds it took to run this job the last successful time.
+     *
+     * @return  integer|false
+     */
+    public function getLastRunningTime()
+    {
+        foreach ($this->getHistory() ?: array() as $history) {
+            if (!$history->getCompletedAt() || !$history->getStartedAt()) {
+                continue;
+            }
+
+            return $history->getCompletedAt()->getTimestamp() - $history->getStartedAt()->getTimestamp();
+        }
+
+        return false;
     }
 }

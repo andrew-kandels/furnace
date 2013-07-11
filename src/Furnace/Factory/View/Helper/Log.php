@@ -17,54 +17,37 @@
  * @link        http://contain-project.org/furnace
  */
 
-namespace Furnace\Controller;
+namespace Furnace\Factory\View\Helper;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\Console\Request as ConsoleRequest;
-use Furnace\Service\Job as JobService;
+use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Furnace\View\Helper\Log as LogViewHelper;
 
 /**
- * Command Line Interface (CLI) Controller
+ * Factory class for the job service's log view helper.
  *
  * @category    akandels
  * @package     furnace
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Cli extends AbstractActionController
+class Log implements FactoryInterface
 {
     /**
-     * @var Furnace\Service\Job
-     */
-    protected $service;
-
-    /**
-     * Constructor
+     * Create the service (factory)
      *
-     * @param   Furnace\Service\Job
-     * @return  void
+     * @param   Zend\ServiceManager\ServiceLocatorInterface
+     * @return  Service|null
      */
-    public function __construct(JobService $service)
+    public function createService(ServiceLocatorInterface $sm)
     {
-        $this->service = $service;
-    }
+        $config   = $sm->getServiceLocator()->get('config');
+        $maxBytes = $config['furnace']['log']['maxBytes'];
 
-    /**
-     * Executes furnace's heartbeat.
-     *
-     * @return  string
-     */
-    public function heartbeatAction()
-    {
-        if (!$this->getRequest() instanceof ConsoleRequest) {
-            throw new \RuntimeException('You can only use this action from a console!');
-        }
-
-        $this->service->heartbeat();
-
-        return sprintf('heartbeat(): %s%s', 
-            $this->service->getLastError(),
-            PHP_EOL
+        $viewHelper = new LogViewHelper(
+            $maxBytes
         );
+
+        return $viewHelper;
     }
 }

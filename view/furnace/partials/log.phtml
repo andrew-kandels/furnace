@@ -1,0 +1,9 @@
+<fieldset class="job-log<?php if ($completed): ?> completed<?php endif; ?>" data-src="<?php
+    echo $this->url('furnace-ajax', array(
+        'action' => 'get-log',
+        'param' => $job->getName(),
+        'param2' => base64_encode($log),
+    )); ?>">
+    <legend><?php echo $this->translate('Log'); ?>: <small><?php echo $this->escapeHtml($basename); ?></small></legend>
+    <pre><?php echo $content; ?></pre>
+</fieldset>

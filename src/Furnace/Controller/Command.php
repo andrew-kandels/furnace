@@ -164,6 +164,34 @@ class Command extends AbstractActionController
     }
 
     /**
+     * Attempts to stop/kill a running job.
+     *
+     * @return  Redirect
+     */
+    public function killAction()
+    {
+        if (!$job = $this->getJobFromRoute()) {
+            return $this->redirect()->toRoute('furnace-crud');
+        }
+
+        $service  = $this->service;
+        $response = $this->makeServiceCall(function() use ($service, $job) {
+            $service->terminate($job);
+        }, $job);
+
+        if ($response !== true) {
+            return $response;
+        }
+
+        $this->flashMessenger()->addSuccessMessage('The job has been stopped.');
+
+        return $this->redirect()->toRoute('furnace-crud', array(
+            'action' => 'view',
+            'param'  => $job->getName(),
+        ));
+    }
+
+    /**
      * Resets a job.
      *
      * @return  array

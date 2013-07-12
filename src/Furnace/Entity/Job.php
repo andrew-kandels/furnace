@@ -286,6 +286,7 @@ class Job extends AbstractEntity
 ));
         $this->define('percentComplete', 'integer');
         $this->define('error', 'boolean');
+        $this->define('numErrors', 'integer');
         $this->define('pidOf', 'integer');
         $this->define('pidCmd', 'string');
         $this->define('messages', 'list', array (
@@ -775,6 +776,38 @@ class Job extends AbstractEntity
     public function hasError()
     {
         $property = $this->property('error');
+        return !($property->isUnset() || $property->isEmpty());
+    }
+
+    /**
+     * Accessor getter for the numErrors property
+     *
+     * @return  See: Contain\Entity\Property\Type\IntegerType::getValue()
+     */
+    public function getNumErrors()
+    {
+        return $this->get('numErrors');
+    }
+
+    /**
+     * Accessor setter for the numErrors property
+     *
+     * @param   See: Contain\Entity\Property\Type\IntegerType::parse()
+     * @return  $this
+     */
+    public function setNumErrors($value)
+    {
+        return $this->set('numErrors', $value);
+    }
+
+    /**
+     * Accessor existence checker for the numErrors property
+     *
+     * @return  boolean
+     */
+    public function hasNumErrors()
+    {
+        $property = $this->property('numErrors');
         return !($property->isUnset() || $property->isEmpty());
     }
 
@@ -1329,11 +1362,16 @@ class Job extends AbstractEntity
 
             // is the PID still active?
             if (!file_exists($status)) {
+                $this->clear(array('queuedAt', 'startedAt'));
                 return false;
             }
 
             // verify the PID is for our job and wasn't simply re-used
-            return $this->getPidCmd() == file_get_contents($status);
+            if (!$isStarted = $this->getPidCmd() == file_get_contents($status)) {
+                $this->clear(array('queuedAt', 'startedAt'));
+            }
+
+            return $isStarted;
         }
 
         return true;
@@ -1700,6 +1738,7 @@ class Job extends AbstractEntity
         }
 
         $this->setCompletedAt(time());
+        $this->setNumErrors($this->getNumErrors() + 1);
 
         $history = new \Furnace\Entity\History(array(
             'startedAt' => $this->getStartedAt() ?: time(),

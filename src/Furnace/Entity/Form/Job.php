@@ -240,6 +240,15 @@ class Job extends \Zend\Form\Form
         )));
 
         $this->add($factory->createElement(array(
+            'name' => 'numErrors',
+            'type' => 'Zend\\Form\\Element\\Text',
+            'options' => array (
+),
+            'attributes' => array (
+),
+        )));
+
+        $this->add($factory->createElement(array(
             'name' => 'pidOf',
             'type' => 'Zend\\Form\\Element\\Text',
             'options' => array (

@@ -13,6 +13,12 @@
     )); ?>"><?php echo $this->escapeHtml($job->getName()); ?></a></li>
 </ul>
 
+<?php /* Poll with ajax for changes to the job that require a page update */ ?>
+<div id="job-active" data-status-src="<?php echo $this->url('furnace-ajax', array(
+    'action' => 'poll-changes',
+    'param'  => $job->getName(),
+)); ?>" data-job="<?php echo $this->escapeHtmlAttr(json_encode($job->export())); ?>"></div>
+
 <?php if ($job->getError()): ?>
     <div class="alert alert-error">
         <?php echo $this->translate('This job reported an error when it was last run:'); ?>
@@ -55,14 +61,23 @@
                 'action' => 'run',
                 'param'  => $job->getName(),
             )); ?>"><?php echo $this->translate('Re-Run Now'); ?></a></li>
+            <li class="divider"></li>
+
         <?php elseif (!$job->isStarted()): ?>
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'run',
                 'param'  => $job->getName(),
             )); ?>"><?php echo $this->translate('Run Now'); ?></a></li>
-        <?php endif; ?>
+            <li class="divider"></li>
 
-        <li class="divider"></li>
+        <?php elseif ($job->isStarted()): ?>
+            <li><a href="<?php echo $this->url('furnace-cmd', array(
+                'action' => 'kill',
+                'param'  => $job->getName(),
+            )); ?>"><?php echo $this->translate('Stop Execution'); ?></a></li>
+            <li class="divider"></li>
+
+        <?php endif; ?>
 
         <li><a href="<?php echo $this->url('furnace-crud', array(
             'action' => 'edit',
@@ -82,7 +97,6 @@
         <?php endif; ?>
     </ul>
 </div>
-<?php echo $this->furnaceRefresh($job); ?>
 
 <form class="form-horizontal">
 <fieldset>

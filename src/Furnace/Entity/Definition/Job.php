@@ -173,6 +173,7 @@ class Job extends AbstractDefinition
         $this->setProperty('completedAt', 'dateTime');
         $this->setProperty('percentComplete', 'integer');
         $this->setProperty('error', 'boolean');
+        $this->setProperty('numErrors', 'integer');
         $this->setProperty('pidOf', 'integer');
         $this->setProperty('pidCmd', 'string');
         $this->setProperty('messages', 'list', array(
@@ -398,6 +399,7 @@ class Job extends AbstractDefinition
         }
 
         $this->setCompletedAt(time());
+        $this->setNumErrors($this->getNumErrors() + 1);
 
         $history = new \Furnace\Entity\History(array(
             'startedAt' => $this->getStartedAt() ?: time(),
@@ -554,11 +556,16 @@ class Job extends AbstractDefinition
 
             // is the PID still active?
             if (!file_exists($status)) {
+                $this->clear(array('queuedAt', 'startedAt'));
                 return false;
             }
 
             // verify the PID is for our job and wasn't simply re-used
-            return $this->getPidCmd() == file_get_contents($status);
+            if (!$isStarted = $this->getPidCmd() == file_get_contents($status)) {
+                $this->clear(array('queuedAt', 'startedAt'));
+            }
+
+            return $isStarted;
         }
 
         return true;

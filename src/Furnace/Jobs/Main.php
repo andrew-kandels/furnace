@@ -30,7 +30,7 @@ use RuntimeException;
  * @copyright   Copyright (c) 2013 Andrew P. Kandels (http://andrewkandels.com)
  * @license     http://www.opensource.org/licenses/bsd-license.php BSD License
  */
-class Main extends JobInterface
+class Main implements JobInterface
 {
     /**
      * Starts the execution of a job, either immediately or as a background

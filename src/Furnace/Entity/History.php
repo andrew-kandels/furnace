@@ -13,7 +13,7 @@ use Contain\Entity\Property\Property;
 class History extends AbstractEntity
 {
 
-    protected $inputFilter = 'Furnace\Entity\Filter\History';
+    protected $inputFilter = 'Furnace\Entity\Form\History';
     protected $messages = array();
 
     /**
@@ -34,6 +34,29 @@ class History extends AbstractEntity
 ));
         $this->define('message', 'string');
         $this->define('stats', 'hash');
+        $this->define('notes', 'string', array (
+  'filters' => 
+  array (
+    0 => 
+    array (
+      'name' => 'StringTrim',
+    ),
+    1 => 
+    array (
+      'name' => 'StripTags',
+    ),
+  ),
+  'type' => 'textarea',
+  'attributes' => 
+  array (
+    'class' => 'input-xlarge',
+    'rows' => 60,
+  ),
+  'options' => 
+  array (
+    'label' => 'Notes',
+  ),
+));
             }
 
 
@@ -230,6 +253,38 @@ class History extends AbstractEntity
     public function hasStats()
     {
         $property = $this->property('stats');
+        return !($property->isUnset() || $property->isEmpty());
+    }
+
+    /**
+     * Accessor getter for the notes property
+     *
+     * @return  See: Contain\Entity\Property\Type\StringType::getValue()
+     */
+    public function getNotes()
+    {
+        return $this->get('notes');
+    }
+
+    /**
+     * Accessor setter for the notes property
+     *
+     * @param   See: Contain\Entity\Property\Type\StringType::parse()
+     * @return  $this
+     */
+    public function setNotes($value)
+    {
+        return $this->set('notes', $value);
+    }
+
+    /**
+     * Accessor existence checker for the notes property
+     *
+     * @return  boolean
+     */
+    public function hasNotes()
+    {
+        $property = $this->property('notes');
         return !($property->isUnset() || $property->isEmpty());
     }
 

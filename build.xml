@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="furnace" default="build">
+
+    <target name="build" depends="contain,closure,compass">
+        <echo>Builds the JavaScript and Stylesheet assets and compiles Contain entities.</echo>
+        <echo>You only need to run these tools if source asset, stylesheet or entity classes are changed.</echo>
+    </target>
+
+    <target name="contain" description="Run Contain compiler to build out entity, filter and form classes">
+        <echo><![CDATA[Requires the Contain and ContainMapper projects (http://contain-project.org)]]></echo>
+        <echo><![CDATA[Should be available if installed through composer.]]></echo>
+        <exec executable="scripts/compile-entities" failonerror="true">
+            <env key="APPLICATION_ENV" value="bi2"/>
+        </exec>
+    </target>
+    
+    <taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask"
+        classpath="../../../scripts/compiler.jar"/>
+
+    <target name="closure" description="Run Google Closure compiler to build out the project JavaScript asset">
+        <echo><![CDATA[Requires the Google Closure compiler (https://developers.google.com/closure/compiler/)]]></echo>
+        <echo><![CDATA[Install at '../../../scripts/compiler.jar']]></echo>
+        <echo><![CDATA[* Default project path if installed as a composer package]]></echo>
+        <jscomp compilationLevel="simple" warning="quiet" debug="false" output="public/js/furnace.js">
+            <sources dir="js">
+                <file name="modernizr.custom.25800.min.js"/>
+                <file name="jquery-1.8.3.js"/>
+                <file name="bootstrap-modal.js"/>
+                <file name="bootstrap-tooltip.js"/>
+                <file name="bootstrap-popover.js"/>
+                <file name="bootstrap-carousel.js"/>
+                <file name="bootstrap-scrollspy.js"/>
+                <file name="bootstrap-transition.js"/>
+                <file name="bootstrap-affix.js"/>
+                <file name="bootstrap-alert.js"/>
+                <file name="bootstrap-tab.js"/>
+                <file name="bootstrap-collapse.js"/>
+                <file name="bootstrap-button.js"/>
+                <file name="bootstrap-typeahead.js"/>
+                <file name="bootstrap-dropdown.js"/>
+                <file name="job.js"/>
+                <file name="dependency.js"/>
+                <file name="mass-actions.js"/>
+                <file name="log.js"/>
+                <file name="search.js"/>
+                <file name="poll-changes.js"/>
+            </sources>
+        </jscomp>
+    </target>
+
+    <target name="compass" description="Run Compass/SASS compiler to build out the project stylesheet asset">
+        <echo><![CDATA[Requires SASS/Compass compiler with bootstrap-sass gem (http://compass-style.org/)]]></echo>
+        <exec executable="scripts/compass" failonerror="true">
+            <arg value="compile" />
+        </exec>
+    </target>
+
+</project>

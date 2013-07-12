@@ -171,4 +171,46 @@ class Ajax extends AbstractActionController
 
         return $response;
     }
+
+    /**
+     * The client UI is polling for job changes to check if a reload is required.
+     *
+     * @return  Response
+     */
+    public function pollChangesAction()
+    {
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
+        }
+
+        if (!is_array($uiJob = $this->params()->fromPost('job'))) {
+            return $this->getResponse()
+                ->setStatusCode(400)
+                ->setContent('Displayed job data not posted or invalid');
+        }
+
+        $uiJob = new JobEntity($uiJob);
+
+        $compareFields = array(
+            'queuedAt',
+            'startedAt',
+            'completedAt',
+            'error',
+            'logs',
+            'pidOf',
+            'dependencies',
+            'priority',
+            'schedule',
+        );
+
+        if ($job->export($compareFields) != $uiJob->export($compareFields)) {
+            return $this->getResponse()
+                ->setStatusCode(205)
+                ->setContent('Changes present');
+        }
+
+        return $this->getResponse()
+            ->setStatusCode(200)
+            ->setContent('No changes');
+    }
 }

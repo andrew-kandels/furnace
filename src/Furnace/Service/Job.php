@@ -308,11 +308,12 @@ class Job extends AbstractService
      * Update a job to reflect it failed.
      *
      * @param   Furnace\Entity\Job
+     * @param   string                              Optional message
      * @return  $this
      */
-    public function fail(JobEntity $job)
+    public function fail(JobEntity $job, $message = '')
     {
-        $job->fail();
+        $job->fail($message);
         $this->save($job);
         return $this;
     }
@@ -333,19 +334,49 @@ class Job extends AbstractService
     }
 
     /**
+     * Finds the worker responsible for terminating running jobs. 
+     *
+     * @return  Furnace\Jobs\JobInterface
+     */
+    public function findTerminationWorker()
+    {
+        $className = $this->config['jobs']['class_terminate'];
+
+        try {
+            $worker = $this->serviceLocator->get($className);
+        } catch (ServiceNotFoundException $e) {
+            throw RuntimeException('Cannot create termination worker, configuration furnish '
+                . '-> jobs -> class_terminate (' . $className . ') invalid or not found by the '
+                . 'service locator'
+            );
+        }
+
+        if (!$worker instanceof JobInterface) {
+            throw RuntimeException('$worker of class ' . get_class($worker) . ' does not '
+                . 'extend Furnace\Jobs\JobInterface'
+            );
+        }
+
+        return $worker;
+    }
+
+    /**
      * Finds and instantiates a worker class as configured in this application's
      * class_template based on the name of the job first, using a backup/general
      * name if none is defined. This is the only instance that uses the service
      * locator.
      *
      * @param   Furnace\Entity\Job
+     * @param   string                                  Class Template (defaults to job name)
      * @return  Furnace\Jobs\JobInterface
      */
-    public function findWorker(JobEntity $job)
+    public function findWorker(JobEntity $job, $name = null)
     {
-        $name = implode('', array_map(function($a) {
-            return ucfirst($a);
-        }, explode('-', $job->getName())));
+        if ($name === null) {
+            $name = implode('', array_map(function($a) {
+                return ucfirst($a);
+            }, explode('-', $job->getName())));
+        }
 
         $className = sprintf($this->config['jobs']['class_template'], $name);
         $defaultClassName = sprintf($this->config['jobs']['class_template'],
@@ -477,7 +508,9 @@ class Job extends AbstractService
 
         $rs = $this->mapper
             ->sort(array('priority' => 1))
-            ->find();
+            ->find(array(
+                'numErrors' => array('$lt' => $config['maxErrors']),
+            ));
 
         foreach ($rs as $job) {
             if (!$job->isQueued() && !$job->isStarted() && !$job->isCompleted() && $this->hasDependencies($job)) {
@@ -494,5 +527,25 @@ class Job extends AbstractService
         }
 
         $this->lastError = 'Nothing to do.';
+    }
+
+    /**
+     * Stops the execution of a job.
+     *
+     * @param   Furnace\Entity\Job
+     * @return  $this
+     */
+    public function terminate(JobEntity $job)
+    {
+        if (!$job->isStarted()) {
+            throw new RuntimeException('Cannot stop job as it\'s not running.');
+        }
+
+        $worker = $this->findTerminationWorker();
+        $worker->run($job);
+
+        $this->save($job);
+
+        return $this;
     }
 }

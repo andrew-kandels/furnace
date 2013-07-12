@@ -167,6 +167,17 @@ class Job extends InputFilter
         )));
 
         $this->add($factory->createInput(array(
+            'name' => 'numErrors',
+            'allow_empty' => true,
+            'validators' => array (
+  0 => 
+  array (
+    'name' => 'Digits',
+  ),
+),
+        )));
+
+        $this->add($factory->createInput(array(
             'name' => 'pidOf',
             'allow_empty' => true,
             'validators' => array (

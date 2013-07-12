@@ -36,6 +36,7 @@ $javaPath -jar $closureJar --js \
     js/mass-actions.js \
     js/log.js \
     js/search.js \
+    js/poll-changes.js \
     >public/js/furnace.js
 
 exit $?

@@ -39,12 +39,28 @@ class History extends AbstractDefinition
     public function setUp()
     {
         $this->registerTarget(AbstractDefinition::ENTITY, __DIR__ . '/..')
-             ->registerTarget(AbstractDefinition::FILTER, __DIR__ . '/../Filter');
+             ->registerTarget(AbstractDefinition::FILTER, __DIR__ . '/../Filter')
+             ->registerTarget(AbstractDefinition::FILTER, __DIR__ . '/../Form');
 
         $this->setProperty('startedAt', 'dateTime');
         $this->setProperty('completedAt', 'dateTime');
         $this->setProperty('failedAt', 'dateTime');
         $this->setProperty('message', 'string');
         $this->setProperty('stats', 'hash');
+
+        $this->setProperty('notes', 'string', array(
+            'filters' => array(
+                array('name' => 'StringTrim'),
+                array('name' => 'StripTags'),
+            ),
+            'type' => 'textarea',
+            'attributes' => array(
+                'class' => 'input-xlarge',
+                'rows' => 60,
+            ),
+            'options' => array(
+                'label' => 'Notes',
+            ),
+        ));
     }
 }

@@ -15,12 +15,16 @@ return array(
 
         'jobs' => array(
             'class_template' => 'Furnace%sJob',
+            'class_terminate' => 'FurnaceTerminateJob',
             'default' => 'Main',
         ),
+
+        'maxErrors' => 3,
     ),
     'service_manager' => array(
         'invokables' => array(
             'FurnaceMainJob' => 'Furnace\Jobs\Main',
+            'FurnaceTerminateJob' => 'Furnace\Jobs\Terminate',
         ),
         'factories' => array(
             'FurnaceJobService' => 'Furnace\Factory\Service\Job',

@@ -348,6 +348,10 @@ class Job extends AbstractDefinition
             date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp()))
         );
 
+        if (count($this->getHistory()) > 25) {
+            $this->shiftHistory();
+        }
+
         $this->clear('startedAt');
 
         return $this;

@@ -43,6 +43,7 @@
                 <file name="dependency.js"/>
                 <file name="mass-actions.js"/>
                 <file name="log.js"/>
+                <file name="history.js"/>
                 <file name="search.js"/>
                 <file name="poll-changes.js"/>
             </sources>

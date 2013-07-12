@@ -495,6 +495,7 @@ class Job extends AbstractService
             ->getCollection()
             ->count(array(
                 'queuedAt' => array('$ne' => null),
+                'schedule' => array('$in' => array('daily', 'weekly', 'monthly')),
             ));
 
         if ($numQueued) {

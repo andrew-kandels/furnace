@@ -23,9 +23,6 @@ $(function() {
             $('body').append(modal);
 
             $('#job-modal').modal('show');
-        })
-        .fail(function(e) {
-            alert('fail');
         });
     });
 });

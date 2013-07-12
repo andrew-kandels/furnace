@@ -23,6 +23,7 @@ use Furnace\Service\Job as JobService;
 use Furnace\Entity\Job as JobEntity;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Session\Container as SessionContainer;
 
@@ -212,5 +213,77 @@ class Ajax extends AbstractActionController
         return $this->getResponse()
             ->setStatusCode(200)
             ->setContent('No changes');
+    }
+
+    /**
+     * Sets notes for a history item.
+     *
+     * @return  Response
+     */
+    public function setHistoryNotesAction()
+    {
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
+        }
+
+        $history = $job->getHistory();
+        $index   = (int) $this->params()->fromRoute('param2');
+        $notes   = $this->params()->fromPost('notes');
+
+        foreach ($job->getHistory() as $ind => $item) {
+            if ($index !== $ind) {
+                continue;
+            }
+
+            $item->setNotes($notes);
+
+            if (!$item->isValid()) {
+                return $this->getResponse()
+                    ->setStatusCode(400)
+                    ->setContent('Invalid notes specified: ' . $item->messages());
+            }
+
+            break;
+        }
+
+        $this->getServiceLocator()
+            ->get('FurnaceJobService')
+            ->save($job);
+
+        return new JsonModel(array(
+            'notes' => $item->getNotes(),
+        ));
+    }
+
+    /**
+     * Deletes a history item.
+     *
+     * @return  Response
+     */
+    public function deleteHistoryAction()
+    {
+        if (!($job = $this->getJobFromRoute()) instanceof JobEntity) {
+            return $job;
+        }
+
+        $history = $job->getHistory()->toArray();
+        $index   = (int) $this->params()->fromRoute('param2');
+
+        if (!isset($history[$index])) {
+            return $this->getResponse()
+                ->setStatusCode(400)
+                ->setContent('History index specified out of bounds');
+        }
+
+        unset($history[$index]);
+        $job->setHistory(array_values($history));
+
+        $this->getServiceLocator()
+            ->get('FurnaceJobService')
+            ->save($job);
+
+        return $this->getResponse()
+            ->setStatusCode(200)
+            ->setContent('Success');
     }
 }

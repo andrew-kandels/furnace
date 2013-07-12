@@ -78,6 +78,7 @@ form .control-group.control-text {
 }
 
 .job-dependency-list {
+  margin-left: 2em;
   ul { 
     list-style: circle;
     .job-dependency-link {
@@ -110,4 +111,9 @@ form .control-group.control-text {
   margin: 1em auto 3em 0;
   text-align: center;
   color: #666;
+}
+
+.input-full {
+  width: 100%;
+  @include box-sizing(border-box);
 }

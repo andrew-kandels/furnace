@@ -175,21 +175,30 @@
 <?php endif; ?>
 
 <?php if ($history = $job->getHistory()): ?>
-<fieldset>
+<fieldset id="job-history">
     <legend><?php echo $this->translate('History'); ?></legend>
     <table class="table" id="job-history">
     <thead>
         <tr>
+            <th class="column-remove">&nbsp;</th>
             <th class="column-status"><?php echo $this->escapeHtml('Status'); ?></th>
             <th class="column-started"><?php echo $this->escapeHtml('Started'); ?></th>
             <th class="column-ended"><?php echo $this->escapeHtml('Ended'); ?></th>
             <th class="column-memory"><?php echo $this->escapeHtml('Peak Memory'); ?></th>
+            <th class="column-notes"><?php echo $this->escapeHtml('Notes'); ?></th>
             <th class="column-running-time"><?php echo $this->escapeHtml('Running Time'); ?></th>
         </tr>
     </thead>
     <tbody>
     <?php foreach ($history as $index => $item): ?>
         <tr>
+            <td class="column-remove">
+                <a href="#" class="job-delete-history" data-src="<?php echo $this->url('furnace-ajax', array(
+                    'action' => 'delete-history',
+                    'param'  => $job->getName(),
+                    'param2' => $index,
+                )); ?>"><i class="icon-remove-sign"></i></a>
+
             <td class="column-status">
                 <?php if ($item->getFailedAt()): ?>
                     <span class="label label-important">Failed</span>
@@ -219,6 +228,16 @@
                     'param' => $job->getName(),
                     'param2' => $index + 1,
                 )); ?>" class="job-status"><small>details</small></a>
+            </td>
+            <td class="column-notes">
+                <a href="#" class="job-set-history-notes" data-src="<?php echo $this->url('furnace-ajax', array(
+                    'action' => 'set-history-notes',
+                    'param'  => $job->getName(),
+                    'param2' => $index,
+                )); ?>"><i class="icon-edit"></i></a>
+                <?php if ($notes = $item->getNotes()): ?>
+                    <?php echo $this->escapeHtml($notes); ?>
+                <?php endif; ?>
             </td>
             <td class="column-running-time">
                 <?php

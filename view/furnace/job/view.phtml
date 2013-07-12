@@ -32,6 +32,7 @@
 
 <div class="btn-group pull-right">
     <a class="btn btn-danger dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-warning-sign"></i>
         <?php echo $this->translate('Admin'); ?>
         <span class="caret"></span>
     </a>
@@ -39,19 +40,25 @@
         <li><a href="<?php echo $this->url('furnace-cmd', array(
             'action' => 'delete',
             'param'  => $job->getName(),
-        )); ?>"><?php echo $this->translate('Delete'); ?></a></li>
+        )); ?>">
+            <i class="icon-remove"></i>
+            <?php echo $this->translate('Delete'); ?></a>
+        </li>
 
         <li class="divider"></li>
 
         <li><a href="<?php echo $this->url('furnace-cmd', array(
             'action' => 'reset',
             'param'  => $job->getName(),
-        )); ?>"><?php
-            echo $this->translate('Reset'); ?></a></li>
+        )); ?>">
+            <i class="icon-eraser"></i>
+            <?php echo $this->translate('Reset'); ?></a>
+        </li>
     </ul>
 </div>
 <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-wrench"></i>
         <?php echo $this->translate('Actions'); ?>
         <span class="caret"></span>
     </a>
@@ -60,21 +67,30 @@
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'run',
                 'param'  => $job->getName(),
-            )); ?>"><?php echo $this->translate('Re-Run Now'); ?></a></li>
+            )); ?>">
+                <i class="icon-fighter-jet icon-spin"></i>
+                <?php echo $this->translate('Re-Run Now'); ?></a>
+            </li>
             <li class="divider"></li>
 
         <?php elseif (!$job->isStarted()): ?>
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'run',
                 'param'  => $job->getName(),
-            )); ?>"><?php echo $this->translate('Run Now'); ?></a></li>
+            )); ?>">
+                <i class="icon-fighter-jet icon-spin"></i>
+                <?php echo $this->translate('Run Now'); ?></a>
+            </li>
             <li class="divider"></li>
 
         <?php elseif ($job->isStarted()): ?>
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'kill',
                 'param'  => $job->getName(),
-            )); ?>"><?php echo $this->translate('Stop Execution'); ?></a></li>
+            )); ?>">
+                <i class="icon-off"></i>
+                <?php echo $this->translate('Stop Execution'); ?></a>
+            </li>
             <li class="divider"></li>
 
         <?php endif; ?>
@@ -82,18 +98,27 @@
         <li><a href="<?php echo $this->url('furnace-crud', array(
             'action' => 'edit',
             'param'  => $job->getName(),
-        )); ?>"><?php echo $this->translate('Edit'); ?></a></li>
+        )); ?>">
+            <i class="icon-edit"></i>
+            <?php echo $this->translate('Edit'); ?></a>
+        </li>
 
         <?php if (!$job->isCompleted()): ?>
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'mark-completed',
                 'param'  => $job->getName(),
-            )); ?>"><?php echo $this->translate('Mark Completed'); ?></a></li>
+            )); ?>">
+                <i class="icon-check"></i>
+                <?php echo $this->translate('Mark Completed'); ?></a>
+            </li>
         <?php else: ?>
             <li><a href="<?php echo $this->url('furnace-cmd', array(
                 'action' => 'mark-incomplete',
                 'param'  => $job->getName(),
-            )); ?>"><?php echo $this->translate('Mark Incomplete'); ?></a></li>
+            )); ?>">
+                <i class="icon-check-empty"></i>
+                <?php echo $this->translate('Mark Incomplete'); ?></a>
+            </li>
         <?php endif; ?>
     </ul>
 </div>

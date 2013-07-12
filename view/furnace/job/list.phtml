@@ -16,40 +16,57 @@
 
 <div class="btn-group pull-right">
     <a class="btn btn-danger dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-wrench"></i>
         <?php echo $this->translate('Admin'); ?>
         <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'delete-many',
-        )); ?>"><?php echo $this->translate('Delete'); ?></a></li>
+        )); ?>">
+            <i class="icon-remove"></i>
+            <?php echo $this->translate('Delete'); ?></a>
+        </li>
 
         <li class="divider"></li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'reset-many',
-        )); ?>"><?php echo $this->translate('Reset'); ?></a></li>
+        )); ?>">
+            <i class="icon-eraser"></i>
+            <?php echo $this->translate('Reset'); ?></a>
+        </li>
     </ul>
 </div>
 
 <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-wrench"></i>
         <?php echo $this->translate('Action'); ?>
         <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'run-many',
-        )); ?>"><?php echo $this->translate('Run Now'); ?></a></li>
+        )); ?>">
+            <i class="icon-fighter-jet"></i>
+            <?php echo $this->translate('Run Now'); ?></a>
+        </li>
 
         <li class="divider"></li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'mark-completed-many',
-        )); ?>"><?php echo $this->translate('Mark Complete'); ?></a></li>
+        )); ?>">
+            <i class="icon-check"></i>
+            <?php echo $this->translate('Mark Complete'); ?></a>
+        </li>
 
         <li><a href="#" class="mass-action" data-src="<?php echo $this->url('furnace-cmd', array(
             'action' => 'mark-incomplete-many',
-        )); ?>"><?php echo $this->translate('Mark Incomplete'); ?></a></li>
+        )); ?>">
+            <i class="icon-check-empty"></i>
+            <?php echo $this->translate('Mark Incomplete'); ?></a>
+        </li>
     </ul>
 </div>

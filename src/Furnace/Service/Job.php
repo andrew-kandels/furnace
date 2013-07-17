@@ -510,7 +510,7 @@ class Job extends AbstractService
         $rs = $this->mapper
             ->sort(array('priority' => 1))
             ->find(array(
-                'numErrors' => array('$lt' => $config['maxErrors']),
+                'numErrors' => array('$lt' => $this->config['maxErrors']),
             ));
 
         foreach ($rs as $job) {

@@ -487,6 +487,10 @@ class Job extends AbstractDefinition
             );
         }
 
+        if (!$this->getCompletedAt() || $this->getError()) {
+            return false;
+        }
+
         $runTimes = array();
         foreach ($this->getHistory() ?: array() as $history) {
             if ($history->getCompletedAt()) {
@@ -494,9 +498,7 @@ class Job extends AbstractDefinition
             }
         }
 
-        if ($this->getCompletedAt() && !$this->getError()) {
-            $runTimes[] = $this->getCompletedAt()->getTimestamp();
-        }
+        $runTimes[] = $this->getCompletedAt()->getTimestamp();
 
         switch ($schedule) {
             case 'once':

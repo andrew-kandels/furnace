@@ -509,9 +509,10 @@ class Job extends AbstractService
 
         $rs = $this->mapper
             ->sort(array('priority' => 1))
-            ->find(array(
-                'numErrors' => array('$lt' => $this->config['maxErrors']),
-            ));
+            ->find(array('$or' => array(
+                array('numErrors' => array('$lt' => $this->config['maxErrors'])),
+                array('numErrors' => null),
+            )));
 
         foreach ($rs as $job) {
             if (!$job->isQueued() && !$job->isStarted() && !$job->isCompleted() && $this->hasDependencies($job)) {

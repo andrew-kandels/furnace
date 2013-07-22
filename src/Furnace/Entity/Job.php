@@ -1567,7 +1567,7 @@ class Job extends AbstractEntity
             throw new \RuntimeException('Cannot start job as it has already been started.');
         }
 
-        $this->clear(array('completedAt', 'queuedAt', 'messages', 'error'));
+        $this->clear(array('completedAt', 'queuedAt', 'messages', 'error', 'numErrors'));
         $this->setPercentComplete(0);
         $this->setStartedAt(time());
 
@@ -1673,6 +1673,7 @@ class Job extends AbstractEntity
         }
 
         $this->setCompletedAt(time());
+        $this->clear('numErrors');
 
         $history = new \Furnace\Entity\History(array(
             'startedAt' => $this->getStartedAt(),
@@ -1715,6 +1716,7 @@ class Job extends AbstractEntity
             'startedAt',
             'completedAt',
             'error',
+            'numErrors',
         ));
 
         if ($history = $this->getHistory() ?: array()) {

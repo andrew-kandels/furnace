@@ -495,7 +495,6 @@ class Job extends AbstractService
             ->getCollection()
             ->count(array(
                 'queuedAt' => array('$ne' => null),
-                'schedule' => array('$in' => array('daily', 'weekly', 'monthly')),
             ));
 
         if ($numQueued) {
@@ -509,13 +508,17 @@ class Job extends AbstractService
 
         $rs = $this->mapper
             ->sort(array('priority' => 1))
-            ->find(array('$or' => array(
-                array('numErrors' => array('$lt' => $this->config['maxErrors'])),
-                array('numErrors' => null),
-            )));
+            ->find(array(
+                'schedule' => array('$in' => array('daily', 'weekly', 'monthly')),
+                '$or' => array(
+                    array('numErrors' => array('$lt' => $this->config['maxErrors'])),
+                    array('numErrors' => null),
+                ),
+            ));
 
         foreach ($rs as $job) {
-            if (!$job->isQueued() && !$job->isStarted() && !$job->isCompleted() && $this->hasDependencies($job)) {
+            if (!$job->isQueued() && !$job->isStarted() && 
+                !$job->isCompleted() && $this->hasDependencies($job)) {
                 $this->lastError = sprintf('Queueing job %s (priority %s, schedule %s).',
                     $job->getName(),
                     $job->getPriority(),

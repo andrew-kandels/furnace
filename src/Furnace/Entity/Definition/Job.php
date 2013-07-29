@@ -344,14 +344,13 @@ class Job extends AbstractDefinition
         }
 
         $this->unshiftHistory($history);
+        if (count($this->getHistory()) > 10) {
+            $this->setHistory(array_slice($this->getHistory(), 0, 10));
+        }
 
         $this->addMessages(sprintf('Job completed at %s',
             date('Y-m-d H:i:s', $this->getCompletedAt()->getTimestamp()))
         );
-
-        if (count($this->getHistory()) > 25) {
-            $this->shiftHistory();
-        }
 
         $this->clear('startedAt');
 
@@ -418,6 +417,9 @@ class Job extends AbstractDefinition
         }
 
         $this->unshiftHistory($history);
+        if (count($this->getHistory()) > 10) {
+            $this->setHistory(array_slice($this->getHistory(), 0, 10));
+        }
 
         $this->clear(array('startedAt', 'queuedAt'));
         $this->setError(true);
@@ -656,6 +658,10 @@ class Job extends AbstractDefinition
     public function getLastRunningTime()
     {
         foreach ($this->getHistory() ?: array() as $history) {
+            if ($history->getFailedAt()) {
+                continue;
+            }
+
             if (!$history->getCompletedAt() || !$history->getStartedAt()) {
                 continue;
             }

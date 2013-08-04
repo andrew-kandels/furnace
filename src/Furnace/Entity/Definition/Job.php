@@ -226,7 +226,7 @@ class Job extends AbstractDefinition
             throw new \RuntimeException('Cannot start job as it has already been started.');
         }
 
-        $this->clear(array('completedAt', 'queuedAt', 'messages', 'error', 'numErrors'));
+        $this->clear(array('completedAt', 'queuedAt', 'messages', 'error'));
         $this->setPercentComplete(0);
         $this->setStartedAt(time());
 

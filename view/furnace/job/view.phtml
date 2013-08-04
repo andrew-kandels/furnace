@@ -155,6 +155,12 @@
                     $this->furnaceFormat($job->getQueuedAt()->getTimestamp())
                 ); ?></small></em>
 
+            <?php elseif ($job->getError()): ?>
+                <em><small><?php printf($this->translate('Failed %s time%s.'),
+                    number_format($job->getNumErrors(), 0),
+                    $job->getNumErrors() != 1 ? 's' : ''
+                ); ?></small></em>
+
             <?php endif; ?>
         </div>
     </div>

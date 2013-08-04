@@ -38,8 +38,9 @@ var JobLog = function(el) {
                 $pre.scrollTop($pre.prop('scrollHeight'));
             }
         })
-        .fail(function() {
+        .fail(function(f, b, s) {
             $pre.css('opacity', '0.5');
+            console.log(f, b, s);
         })
         .always(function() {
             setTimeout(function() {

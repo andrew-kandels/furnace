@@ -187,18 +187,6 @@ class Job extends AbstractActionController
             return $this->redirect()->toRoute('furnace-crud');
         }
 
-        $history = $job->getHistory() ?: array();
-        $elapsed = false;
-
-        foreach ($history as $item) {
-            $started   = $item->getStartedAt();
-            $completed = $item->getCompletedAt();
-
-            if ($started && $completed) {
-                $elapsed = $completed->getTimestamp() - $started->getTimestamp();
-            }
-        }
-
         $dependencies = array();
         if ($arr = $job->getDependencies()) {
             foreach ($arr as $dependency) {
@@ -210,7 +198,7 @@ class Job extends AbstractActionController
 
         return array(
             'job' => $job,
-            'elapsed' => $elapsed,
+            'elapsed' => $job->getLastRunningTime(),
             'dependencies' => $dependencies,
         );
     }

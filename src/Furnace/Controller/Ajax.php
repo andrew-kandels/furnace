@@ -197,14 +197,19 @@ class Ajax extends AbstractActionController
             'startedAt',
             'completedAt',
             'error',
-            'logs',
             'pidOf',
             'dependencies',
             'priority',
             'schedule',
         );
 
-        if ($job->export($compareFields) != $uiJob->export($compareFields)) {
+        $first = $job->export($compareFields);
+        $second = $uiJob->export($compareFields);
+
+        ksort($first);
+        ksort($second);
+
+        if ($first != $second) {
             return $this->getResponse()
                 ->setStatusCode(205)
                 ->setContent('Changes present');

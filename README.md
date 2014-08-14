@@ -1,4 +1,4 @@
-Furnass - Background Job Management Interface for Zend Framework 2
+Furnace - Background Job Management Interface for Zend Framework 2
 ==================================================================
 
 Furnace is Zend Framework 2 module providing an intuitive user interface for
@@ -34,7 +34,7 @@ asynchroneously. A common approach is through a message queue such as:
 You need only extend an interface and implement a `run()` method in a new class 
 and register it with the ZF2 service manager in order to integrate Furnace into
 your application. See the `examples/` directory for code examples on integrating
-Furnass with various message queues.
+Furnace with various message queues.
 
 Why?
 ----
